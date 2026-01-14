@@ -1,0 +1,9 @@
+config.h
+config.def.h.bak
+vxwm
+vxwm.o
+util.o
+drw.o
+README
+dwm.png
+dwm.1
