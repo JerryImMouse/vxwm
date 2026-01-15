@@ -180,7 +180,11 @@ drw_clr_create(Drw *drw, Clr *dest, const char *clrname)
 
 /* Create color schemes. */
 Clr *
+#if !XRDB
 drw_scm_create(Drw *drw, const char *clrnames[], size_t clrcount)
+#else
+drw_scm_create(Drw *drw, char *clrnames[], size_t clrcount)
+#endif
 {
 	size_t i;
 	Clr *ret;

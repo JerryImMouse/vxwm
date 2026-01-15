@@ -1,14 +1,23 @@
 /* See LICENSE file for copyright and license details.
 This wm is forked from dwm 6.7, thanks suckless for their incredible work on dwm!
 
-vxwm 0.dev // by wh1tepearl 
+vxwm 0.dev // by wh1tepearl
+
+Known issues for 15/01/2026:
+1. When using BETTER_RESIZE and resizing window on top of bar, bar will start to erase as window resizes
+2. Windows teleports when hitting its minimum size when using BETTER_RESIZE
+3. When usinng BAR_PADDING status text doesn't show.
 */
 
 /* vxwm compile-time options */
-#define BETTER_RESIZE 1 // yeah its better resize support
+#define BETTER_RESIZE 1 // yeah it's better resize support, currently has some minor bugs but it's still very usable
 #define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // recomended to use on every pc, because cpu (software) rendered apps like ST will lagg when resizing even if you have a good pc.
 #define USE_RESIZECLIENT_FUNC 0 // use resizeclient function of instead of resize function, not recommended
 #define GAPS 0 // gaps support 
+#define XRDB 0 //xrdb support
+#define ALT_CENTER_OF_BAR_COLOR 0 //changes center of bar color to a dark color
+#define BAR_HEIGHT 0 //support for changing bar height
+#define BAR_PADDING 0 //support for changing the bar padding
 
 #include <errno.h>
 #include <locale.h>
@@ -31,6 +40,10 @@ vxwm 0.dev // by wh1tepearl
 #endif /* XINERAMA */
 #include <X11/Xft/Xft.h>
 
+#if XRDB
+#include <X11/Xresource.h>
+#endif
+
 #include "drw.h"
 #include "util.h"
 
@@ -46,6 +59,23 @@ vxwm 0.dev // by wh1tepearl
 #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 
+#if XRDB
+#define XRDB_LOAD_COLOR(R,V)    if (XrmGetResource(xrdb, R, NULL, &type, &value) == True) { \
+                                  if (value.addr != NULL && strnlen(value.addr, 8) == 7 && value.addr[0] == '#') { \
+                                    int i = 1; \
+                                    for (; i <= 6; i++) { \
+                                      if (value.addr[i] < 48) break; \
+                                      if (value.addr[i] > 57 && value.addr[i] < 65) break; \
+                                      if (value.addr[i] > 70 && value.addr[i] < 97) break; \
+                                      if (value.addr[i] > 102) break; \
+                                    } \
+                                    if (i == 7) { \
+                                      strncpy(V, value.addr, 7); \
+                                      V[7] = '\0'; \
+                                    } \
+                                  } \
+                                }
+#endif
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
 enum { SchemeNorm, SchemeSel }; /* color schemes */
@@ -170,6 +200,9 @@ static void grabkeys(void);
 static void incnmaster(const Arg *arg);
 static void keypress(XEvent *e);
 static void killclient(const Arg *arg);
+#if XRDB
+static void loadxrdb(void);
+#endif
 static void manage(Window w, XWindowAttributes *wa);
 static void mappingnotify(XEvent *e);
 static void maprequest(XEvent *e);
@@ -227,6 +260,9 @@ static Monitor *wintomon(Window w);
 static int xerror(Display *dpy, XErrorEvent *ee);
 static int xerrordummy(Display *dpy, XErrorEvent *ee);
 static int xerrorstart(Display *dpy, XErrorEvent *ee);
+#if XRDB
+static void xrdb(const Arg *arg);
+#endif
 static void zoom(const Arg *arg);
 
 /* variables */
@@ -236,6 +272,12 @@ static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh;               /* bar height */
 static int lrpad;            /* sum of left and right padding for text */
+
+#if BAR_PADDING
+static int vp;               /* vertical padding for bar */
+static int sp;               /* side padding for bar */
+#endif
+
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static unsigned int numlockmask = 0;
 static void (*handler[LASTEvent]) (XEvent *) = {
@@ -565,7 +607,11 @@ configurenotify(XEvent *e)
 				for (c = m->clients; c; c = c->next)
 					if (c->isfullscreen)
 						resizeclient(c, m->mx, m->my, m->mw, m->mh);
+#if !BAR_PADDING
 				XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, m->ww, bh);
+#else
+        XMoveResizeWindow(dpy, m->barwin, m->wx + sp, m->by + vp, m->ww -  2 * sp, bh);
+#endif
 			}
 			focus(NULL);
 			arrange(NULL);
@@ -709,7 +755,11 @@ drawbar(Monitor *m)
 	if (m == selmon) { /* status is only drawn on selected monitor */
 		drw_setscheme(drw, scheme[SchemeNorm]);
 		tw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
+#if !BAR_PADDING
 		drw_text(drw, m->ww - tw, 0, tw, bh, 0, stext, 0);
+#else
+    drw_text(drw, m->ww - sw - 2 * sp, 0, sw, bh, 0, stext, 0);
+#endif
 	}
 
 	for (c = m->clients; c; c = c->next) {
@@ -734,13 +784,25 @@ drawbar(Monitor *m)
 
 	if ((w = m->ww - tw - x) > bh) {
 		if (m->sel) {
+#if !ALT_CENTER_OF_BAR_COLOR
 			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
+#else
+      drw_setscheme(drw, scheme[m == selmon ? SchemeNorm : SchemeNorm]);
+#endif
+#if !BAR_PADDING
 			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
+#else
+      drw_text(drw, x, 0, w - 2 * sp, bh, lrpad / 2, m->sel->name, 0);
+#endif
 			if (m->sel->isfloating)
 				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
 		} else {
 			drw_setscheme(drw, scheme[SchemeNorm]);
+#if !BAR_PADDING
 			drw_rect(drw, x, 0, w, bh, 1, 1);
+#else
+      drw_rect(drw, x, 0, w - 2 * sp, bh, 1, 1);
+#endif
 		}
 	}
 	drw_map(drw, m->barwin, 0, 0, m->ww, bh);
@@ -1026,6 +1088,46 @@ killclient(const Arg *arg)
 		XUngrabServer(dpy);
 	}
 }
+
+#if XRDB
+void
+loadxrdb()
+{
+  Display *display;
+  char * resm;
+  XrmDatabase xrdb;
+  char *type;
+  XrmValue value;
+
+  display = XOpenDisplay(NULL);
+
+  if (display != NULL) {
+    resm = XResourceManagerString(display);
+
+    if (resm != NULL) {
+      xrdb = XrmGetStringDatabase(resm);
+
+      if (xrdb != NULL) {
+        // XRDB_LOAD_COLOR("dwm.normbordercolor", normbordercolor);
+        // XRDB_LOAD_COLOR("dwm.normbgcolor", normbgcolor);
+        // XRDB_LOAD_COLOR("dwm.normfgcolor", normfgcolor);
+        // XRDB_LOAD_COLOR("dwm.selbordercolor", selbordercolor);
+        // XRDB_LOAD_COLOR("dwm.selbgcolor", selbgcolor);
+        // XRDB_LOAD_COLOR("dwm.selfgcolor", selfgcolor);
+        XRDB_LOAD_COLOR("dwm.color0", normbordercolor);
+        XRDB_LOAD_COLOR("dwm.color8", selbordercolor);
+        XRDB_LOAD_COLOR("dwm.color0", normbgcolor);
+        XRDB_LOAD_COLOR("dwm.color6", normfgcolor);
+        XRDB_LOAD_COLOR("dwm.color0", selfgcolor);
+        XRDB_LOAD_COLOR("dwm.color14", selbgcolor);
+      }
+    }
+  }
+
+  XCloseDisplay(display);
+}
+
+#endif
 
 void
 manage(Window w, XWindowAttributes *wa)
@@ -1671,8 +1773,16 @@ setup(void)
 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
 	lrpad = drw->fonts->h;
+#if !BAR_HEIGHT
 	bh = drw->fonts->h + 2;
+#else
+  bh = user_bh ? user_bh : drw->fonts->h + 2;
+#endif
 	updategeom();
+#if BAR_PADDING
+  sp = sidepad;
+  vp = (topbar == 1) ? vertpad : - vertpad;
+#endif
 	/* init atoms */
 	utf8string = XInternAtom(dpy, "UTF8_STRING", False);
 	wmatom[WMProtocols] = XInternAtom(dpy, "WM_PROTOCOLS", False);
@@ -1699,6 +1809,9 @@ setup(void)
 	/* init bars */
 	updatebars();
 	updatestatus();
+#if BAR_PADDING
+  updatebarpos(selmon);
+#endif
 	/* supporting window for NetWMCheck */
 	wmcheckwin = XCreateSimpleWindow(dpy, root, 0, 0, 1, 1, 0, 0, 0);
 	XChangeProperty(dpy, wmcheckwin, netatom[NetWMCheck], XA_WINDOW, 32,
@@ -1843,7 +1956,11 @@ togglebar(const Arg *arg)
 {
 	selmon->showbar = !selmon->showbar;
 	updatebarpos(selmon);
+#if !BAR_PADDING
 	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
+#else
+  XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, selmon->by + vp, selmon->ww - 2 * sp, bh);
+#endif
 	arrange(selmon);
 }
 
@@ -1954,7 +2071,11 @@ updatebars(void)
 	for (m = mons; m; m = m->next) {
 		if (m->barwin)
 			continue;
+#if !BAR_PADDING
 		m->barwin = XCreateWindow(dpy, root, m->wx, m->by, m->ww, bh, 0, DefaultDepth(dpy, screen),
+#else
+    m->barwin = XCreateWindow(dpy, root, m->wx + sp, m->by + vp, m->ww - 2 * sp, bh, 0, DefaultDepth(dpy, screen),
+#endif
 				CopyFromParent, DefaultVisual(dpy, screen),
 				CWOverrideRedirect|CWBackPixmap|CWEventMask, &wa);
 		XDefineCursor(dpy, m->barwin, cursor[CurNormal]->cursor);
@@ -1969,11 +2090,21 @@ updatebarpos(Monitor *m)
 	m->wy = m->my;
 	m->wh = m->mh;
 	if (m->showbar) {
+#if !BAR_PADDING
 		m->wh -= bh;
 		m->by = m->topbar ? m->wy : m->wy + m->wh;
 		m->wy = m->topbar ? m->wy + bh : m->wy;
+#else
+    m->wh = m->wh - vertpad - bh;
+		m->by = m->topbar ? m->wy : m->wy + m->wh + vertpad;
+		m->wy = m->topbar ? m->wy + bh + vp : m->wy;
+#endif
 	} else
+#if !BAR_PADDING
 		m->by = -bh;
+#else
+    m->by = -bh - vp;
+#endif
 }
 
 void
@@ -2254,6 +2385,19 @@ xerrorstart(Display *dpy, XErrorEvent *ee)
 	return -1;
 }
 
+#if XRDB
+void
+xrdb(const Arg *arg)
+{
+  loadxrdb();
+  int i;
+  for (i = 0; i < LENGTH(colors); i++)
+                scheme[i] = drw_scm_create(drw, colors[i], 3);
+  focus(NULL);
+  arrange(NULL);
+}
+#endif
+
 void
 zoom(const Arg *arg)
 {
@@ -2278,6 +2422,10 @@ main(int argc, char *argv[])
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("vxwm: cannot open display");
 	checkotherwm();
+#if XRDB
+  XrmInitialize();
+  loadxrdb();
+#endif
 	setup();
 #ifdef __OpenBSD__
 	if (pledge("stdio rpath proc exec", NULL) == -1)
