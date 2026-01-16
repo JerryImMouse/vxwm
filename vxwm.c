@@ -3,21 +3,25 @@ This wm is forked from dwm 6.7, thanks suckless for their incredible work on dwm
 
 vxwm 0.dev // by wh1tepearl
 
-Known issues for 15/01/2026:
+Known issues:
+
+None
+
+Solved issues:
 1. When using BETTER_RESIZE and resizing window on top of bar, bar will start to erase as window resizes
-2. Windows teleports when hitting its minimum size when using BETTER_RESIZE
-3. When usinng BAR_PADDING status text doesn't show.
+2. When usinng BAR_PADDING status text doesn't show.
+3. Windows teleports when hitting its minimum size when using BETTER_RESIZE
 */
 
 /* vxwm compile-time options */
 #define BETTER_RESIZE 1 // yeah it's better resize support, currently has some minor bugs but it's still very usable
 #define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // recomended to use on every pc, because cpu (software) rendered apps like ST will lagg when resizing even if you have a good pc.
 #define USE_RESIZECLIENT_FUNC 0 // use resizeclient function of instead of resize function, not recommended
-#define GAPS 0 // gaps support 
-#define XRDB 0 //xrdb support
-#define ALT_CENTER_OF_BAR_COLOR 0 //changes center of bar color to a dark color
-#define BAR_HEIGHT 0 //support for changing bar height
-#define BAR_PADDING 0 //support for changing the bar padding
+#define GAPS 1 // gaps support 
+#define XRDB 1 //xrdb support
+#define ALT_CENTER_OF_BAR_COLOR 1 //changes center of bar color to a dark color
+#define BAR_HEIGHT 1 //support for changing bar height
+#define BAR_PADDING 1 //support for changing the bar padding
 
 #include <errno.h>
 #include <locale.h>
@@ -758,7 +762,8 @@ drawbar(Monitor *m)
 #if !BAR_PADDING
 		drw_text(drw, m->ww - tw, 0, tw, bh, 0, stext, 0);
 #else
-    drw_text(drw, m->ww - sw - 2 * sp, 0, sw, bh, 0, stext, 0);
+//  drw_text(drw, m->ww - sw - 2 * sp, 0, sw, bh, 0, stext, 0); this was causing the solved issue 2
+    drw_text(drw, m->ww - tw - 2 * sp, 0, tw, bh, 0, stext, 0);
 #endif
 	}
 
@@ -1436,7 +1441,6 @@ resizemouse(const Arg *arg)
     if (XGrabPointer(dpy, root, False, MOUSEMASK, GrabModeAsync, GrabModeAsync,
                      None, cur, CurrentTime) != GrabSuccess)
         return;
-
     do {
         XMaskEvent(dpy, MOUSEMASK|ExposureMask|SubstructureRedirectMask, &ev);
 
@@ -1446,7 +1450,6 @@ resizemouse(const Arg *arg)
                 continue;
             lasttime = ev.xmotion.time;
 #endif
-
             int dx = ev.xmotion.x_root - (orig_x + rx);
             int dy = ev.xmotion.y_root - (orig_y + ry);
 
@@ -1455,27 +1458,34 @@ resizemouse(const Arg *arg)
             int nw = orig_w;
             int nh = orig_h;
 
-            if (left) {
-                nx += dx;
-                nw -= dx;
-            } else if (right) {
-                nw += dx;
-            }
+            if (left)   nw = orig_w - dx;
+            else if (right) nw = orig_w + dx;
 
-            if (top) {
-                ny += dy;
-                nh -= dy;
-            } else if (bottom) {
-                nh += dy;
-            }
+            if (top)    nh = orig_h - dy;
+            else if (bottom) nh = orig_h + dy;
 
-            if (nw < 1) { nw = 1; nx = orig_x + orig_w - 1; }
-            if (nh < 1) { nh = 1; ny = orig_y + orig_h - 1; }
+            int min_w = MAX(1, c->minw);
+            int min_h = MAX(1, c->minh);
+            
+            if (nw < min_w) nw = min_w;
+            if (nh < min_h) nh = min_h;
+
+            if (left)   nx = orig_x + (orig_w - nw);
+            if (top)    ny = orig_y + (orig_h - nh);
+
+            if (c->mon->wx + nw >= selmon->wx && c->mon->wx + nw <= selmon->wx + selmon->ww
+                && c->mon->wy + nh >= selmon->wy && c->mon->wy + nh <= selmon->wy + selmon->wh)
+            {
+                if (!c->isfloating && selmon->lt[selmon->sellt]->arrange
+                && (abs(nw - c->w) > snap || abs(nh - c->h) > snap))
+                    togglefloating(NULL);
+            } 
 #if USE_RESIZECLIENT_FUNC           
            resizeclient(c, nx, ny, nw, nh);
 #else
            resize(c, nx, ny, nw, nh, 1);
 #endif
+           drawbar(selmon); //fix for issue 1
         }
     } while (ev.type != ButtonRelease);
 
