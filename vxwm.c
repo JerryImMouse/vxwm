@@ -11,6 +11,7 @@ Solved issues:
 1. When using BETTER_RESIZE and resizing window on top of bar, bar will start to erase as window resizes
 2. When usinng BAR_PADDING status text doesn't show.
 3. Windows teleports when hitting its minimum size when using BETTER_RESIZE
+4. When using BETTER_RESIZE window is not becaming floating when resizing
 */
 
 /* vxwm compile-time options */
@@ -1534,13 +1535,23 @@ resizemouse(const Arg *arg)
             if (left)   nx = orig_x + (orig_w - nw);
             if (top)    ny = orig_y + (orig_h - nh);
 
-            if (c->mon->wx + nw >= selmon->wx && c->mon->wx + nw <= selmon->wx + selmon->ww
-                && c->mon->wy + nh >= selmon->wy && c->mon->wy + nh <= selmon->wy + selmon->wh)
-            {
-                if (!c->isfloating && selmon->lt[selmon->sellt]->arrange
-                && (abs(nw - c->w) > snap || abs(nh - c->h) > snap))
-                    togglefloating(NULL);
-            } 
+            int dx_final = nw - orig_w;
+            int dy_final = nh - orig_h;
+
+            if (!c->isfloating && selmon->lt[selmon->sellt]->arrange &&
+              (abs(dx_final) > snap || abs(dy_final) > snap)) {
+
+              if (nx >= selmon->wx && nx + nw <= selmon->wx + selmon->ww &&
+                ny >= selmon->wy && ny + nh <= selmon->wy + selmon->wh) {
+
+                togglefloating(NULL);
+
+                orig_x = c->x;
+                orig_y = c->y;
+                orig_w = c->w;
+                orig_h = c->h;
+              }
+            }
 #if USE_RESIZECLIENT_FUNC           
            resizeclient(c, nx, ny, nw, nh);
 #else
