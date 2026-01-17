@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details.
 This wm is forked from dwm 6.7, thanks suckless for their incredible work on dwm!
 
-vxwm 0.dev // by wh1tepearl
+vxwm 1.2 // by wh1tepearl
 
 Known issues:
 
@@ -22,6 +22,7 @@ Solved issues:
 #define ALT_CENTER_OF_BAR_COLOR 1 //changes center of bar color to a dark color
 #define BAR_HEIGHT 1 //support for changing bar height
 #define BAR_PADDING 1 //support for changing the bar padding
+#define FULLSCREEN 1 //supoort for toggling fullscreen
 
 #include <errno.h>
 #include <locale.h>
@@ -243,6 +244,9 @@ static void tagmon(const Arg *arg);
 static void tile(Monitor *m);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
+#if FULLSCREEN
+static void togglefullscr(const Arg *arg);
+#endif
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void unfocus(Client *c, int setfocus);
@@ -1987,7 +1991,14 @@ togglefloating(const Arg *arg)
 			selmon->sel->w, selmon->sel->h, 0);
 	arrange(selmon);
 }
-
+#if FULLSCREEN
+void
+togglefullscr(const Arg *arg)
+{
+  if(selmon->sel)
+    setfullscreen(selmon->sel, !selmon->sel->isfullscreen);
+}
+#endif
 void
 toggletag(const Arg *arg)
 {
