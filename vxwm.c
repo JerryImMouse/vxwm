@@ -17,12 +17,13 @@ Solved issues:
 #define BETTER_RESIZE 1 // yeah it's better resize support, currently has some minor bugs but it's still very usable
 #define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // recomended to use on every pc, because cpu (software) rendered apps like ST will lagg when resizing even if you have a good pc.
 #define USE_RESIZECLIENT_FUNC 0 // use resizeclient function of instead of resize function, not recommended
-#define GAPS 1 // gaps support 
-#define XRDB 1 //xrdb support
-#define ALT_CENTER_OF_BAR_COLOR 1 //changes center of bar color to a dark color
-#define BAR_HEIGHT 1 //support for changing bar height
-#define BAR_PADDING 1 //support for changing the bar padding
-#define FULLSCREEN 1 //supoort for toggling fullscreen
+#define GAPS 0 // gaps support 
+#define XRDB 0 //xrdb support
+#define ALT_CENTER_OF_BAR_COLOR 0 //changes center of bar color to a dark color
+#define BAR_HEIGHT 0 //support for changing bar height
+#define BAR_PADDING 0 //support for changing the bar padding
+#define FULLSCREEN 0 //support for toggling fullscreen
+#define MOVE_IN_TILED 0 //support for moving windows in tiled mode
 
 #include <errno.h>
 #include <locale.h>
@@ -1299,11 +1300,67 @@ movemouse(const Arg *arg)
 				ny = selmon->wy;
 			else if (abs((selmon->wy + selmon->wh) - (ny + HEIGHT(c))) < snap)
 				ny = selmon->wy + selmon->wh - HEIGHT(c);
+#if !MOVE_IN_TILED
 			if (!c->isfloating && selmon->lt[selmon->sellt]->arrange
 			&& (abs(nx - c->x) > snap || abs(ny - c->y) > snap))
 				togglefloating(NULL);
+#endif
 			if (!selmon->lt[selmon->sellt]->arrange || c->isfloating)
 				resize(c, nx, ny, c->w, c->h, 1);
+#if MOVE_IN_TILED
+			else if (selmon->lt[selmon->sellt]->arrange || !c->isfloating) {
+				if ((m = recttomon(ev.xmotion.x_root, ev.xmotion.y_root, 1, 1)) != selmon) {
+					sendmon(c, m);
+					selmon = m;
+					focus(NULL);
+				}
+
+				Client *cc = c->mon->clients;
+				while (1) {
+					if (cc == 0) break;
+					if(
+					 cc != c && !cc->isfloating && ISVISIBLE(cc) &&
+					 ev.xmotion.x_root > cc->x &&
+					 ev.xmotion.x_root < cc->x + cc->w &&
+					 ev.xmotion.y_root > cc->y &&
+					 ev.xmotion.y_root < cc->y + cc->h ) {
+						break;
+					}
+
+					cc = cc->next;
+				}
+
+				if (cc) {
+					Client *cl1, *cl2, ocl1;
+					
+					if (!selmon->lt[selmon->sellt]->arrange) return;
+
+					cl1 = c;
+					cl2 = cc;
+					ocl1 = *cl1;
+					strcpy(cl1->name, cl2->name);
+					cl1->win = cl2->win;
+					cl1->x = cl2->x;
+					cl1->y = cl2->y;
+					cl1->w = cl2->w;
+					cl1->h = cl2->h;
+					
+					cl2->win = ocl1.win;
+					strcpy(cl2->name, ocl1.name);
+					cl2->x = ocl1.x;
+					cl2->y = ocl1.y;
+					cl2->w = ocl1.w;
+					cl2->h = ocl1.h;
+					
+					selmon->sel = cl2;
+
+					c = cc;
+					focus(c);
+					
+					arrange(cl1->mon);
+				}
+			}
+#endif
 			break;
 		}
 	} while (ev.type != ButtonRelease);
