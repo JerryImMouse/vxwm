@@ -1,0 +1,16 @@
+#ifndef MODULES_H
+#define MODULES_H
+
+/* vxwm compile-time options */
+#define BETTER_RESIZE 1 // yeah it's better resize support
+#define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // recomended to use on every pc, because cpu (software) rendered apps like ST will lagg when resizing even if you have a good pc.
+#define USE_RESIZECLIENT_FUNC 0 // use resizeclient function of instead of resize function, not recommended
+#define GAPS 0 // gaps support 
+#define XRDB 0 //xrdb support
+#define ALT_CENTER_OF_BAR_COLOR 0 //changes center of bar color to a dark color
+#define BAR_HEIGHT 0 //support for changing bar height
+#define BAR_PADDING 0 //support for changing the bar padding
+#define FULLSCREEN 0 //support for toggling fullscreen
+#define MOVE_IN_TILED 0 //support for moving windows in tiled mode
+
+#endif

@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details.
 This wm is forked from dwm 6.7, thanks suckless for their incredible work on dwm!
 
-vxwm 1.2 // by wh1tepearl
+vxwm 1.3 // by wh1tepearl
 
 Known issues:
 
@@ -14,17 +14,7 @@ Solved issues:
 4. When using BETTER_RESIZE window is not becaming floating when resizing
 */
 
-/* vxwm compile-time options */
-#define BETTER_RESIZE 1 // yeah it's better resize support, currently has some minor bugs but it's still very usable
-#define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // recomended to use on every pc, because cpu (software) rendered apps like ST will lagg when resizing even if you have a good pc.
-#define USE_RESIZECLIENT_FUNC 0 // use resizeclient function of instead of resize function, not recommended
-#define GAPS 0 // gaps support 
-#define XRDB 0 //xrdb support
-#define ALT_CENTER_OF_BAR_COLOR 0 //changes center of bar color to a dark color
-#define BAR_HEIGHT 0 //support for changing bar height
-#define BAR_PADDING 0 //support for changing the bar padding
-#define FULLSCREEN 0 //support for toggling fullscreen
-#define MOVE_IN_TILED 0 //support for moving windows in tiled mode
+//Modules configuration is in modules.h
 
 #include <errno.h>
 #include <locale.h>
@@ -47,10 +37,11 @@ Solved issues:
 #endif /* XINERAMA */
 #include <X11/Xft/Xft.h>
 
-#if XRDB
-#include <X11/Xresource.h>
-#endif
+// #if XRDB
+// #include <X11/Xresource.h>
+// #endif
 
+#include "modules.h"
 #include "drw.h"
 #include "util.h"
 
@@ -66,23 +57,23 @@ Solved issues:
 #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 
-#if XRDB
-#define XRDB_LOAD_COLOR(R,V)    if (XrmGetResource(xrdb, R, NULL, &type, &value) == True) { \
-                                  if (value.addr != NULL && strnlen(value.addr, 8) == 7 && value.addr[0] == '#') { \
-                                    int i = 1; \
-                                    for (; i <= 6; i++) { \
-                                      if (value.addr[i] < 48) break; \
-                                      if (value.addr[i] > 57 && value.addr[i] < 65) break; \
-                                      if (value.addr[i] > 70 && value.addr[i] < 97) break; \
-                                      if (value.addr[i] > 102) break; \
-                                    } \
-                                    if (i == 7) { \
-                                      strncpy(V, value.addr, 7); \
-                                      V[7] = '\0'; \
-                                    } \
-                                  } \
-                                }
-#endif
+// #if XRDB
+// #define XRDB_LOAD_COLOR(R,V)    if (XrmGetResource(xrdb, R, NULL, &type, &value) == True) { \
+//                                   if (value.addr != NULL && strnlen(value.addr, 8) == 7 && value.addr[0] == '#') { \
+//                                     int i = 1; \
+//                                     for (; i <= 6; i++) { \
+//                                       if (value.addr[i] < 48) break; \
+//                                       if (value.addr[i] > 57 && value.addr[i] < 65) break; \
+//                                       if (value.addr[i] > 70 && value.addr[i] < 97) break; \
+//                                       if (value.addr[i] > 102) break; \
+//                                     } \
+//                                     if (i == 7) { \
+//                                       strncpy(V, value.addr, 7); \
+//                                       V[7] = '\0'; \
+//                                     } \
+//                                   } \
+//                                 }
+// #endif
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
 enum { SchemeNorm, SchemeSel }; /* color schemes */
@@ -207,9 +198,6 @@ static void grabkeys(void);
 static void incnmaster(const Arg *arg);
 static void keypress(XEvent *e);
 static void killclient(const Arg *arg);
-#if XRDB
-static void loadxrdb(void);
-#endif
 static void manage(Window w, XWindowAttributes *wa);
 static void mappingnotify(XEvent *e);
 static void maprequest(XEvent *e);
@@ -232,9 +220,6 @@ static void sendmon(Client *c, Monitor *m);
 static void setclientstate(Client *c, long state);
 static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
-#if GAPS
-static void setgaps(const Arg *arg);
-#endif
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
 static void setup(void);
@@ -246,9 +231,6 @@ static void tagmon(const Arg *arg);
 static void tile(Monitor *m);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
-#if FULLSCREEN
-static void togglefullscr(const Arg *arg);
-#endif
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void unfocus(Client *c, int setfocus);
@@ -270,10 +252,9 @@ static Monitor *wintomon(Window w);
 static int xerror(Display *dpy, XErrorEvent *ee);
 static int xerrordummy(Display *dpy, XErrorEvent *ee);
 static int xerrorstart(Display *dpy, XErrorEvent *ee);
-#if XRDB
-static void xrdb(const Arg *arg);
-#endif
 static void zoom(const Arg *arg);
+
+#include "modules/vxwm_includes.h"
 
 /* variables */
 static const char broken[] = "broken";
@@ -317,6 +298,7 @@ static Window root, wmcheckwin;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
+#include "modules/vxwm_includes.c"
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
@@ -1100,46 +1082,6 @@ killclient(const Arg *arg)
 	}
 }
 
-#if XRDB
-void
-loadxrdb()
-{
-  Display *display;
-  char * resm;
-  XrmDatabase xrdb;
-  char *type;
-  XrmValue value;
-
-  display = XOpenDisplay(NULL);
-
-  if (display != NULL) {
-    resm = XResourceManagerString(display);
-
-    if (resm != NULL) {
-      xrdb = XrmGetStringDatabase(resm);
-
-      if (xrdb != NULL) {
-        // XRDB_LOAD_COLOR("dwm.normbordercolor", normbordercolor);
-        // XRDB_LOAD_COLOR("dwm.normbgcolor", normbgcolor);
-        // XRDB_LOAD_COLOR("dwm.normfgcolor", normfgcolor);
-        // XRDB_LOAD_COLOR("dwm.selbordercolor", selbordercolor);
-        // XRDB_LOAD_COLOR("dwm.selbgcolor", selbgcolor);
-        // XRDB_LOAD_COLOR("dwm.selfgcolor", selfgcolor);
-        XRDB_LOAD_COLOR("dwm.color0", normbordercolor);
-        XRDB_LOAD_COLOR("dwm.color8", selbordercolor);
-        XRDB_LOAD_COLOR("dwm.color0", normbgcolor);
-        XRDB_LOAD_COLOR("dwm.color6", normfgcolor);
-        XRDB_LOAD_COLOR("dwm.color0", selfgcolor);
-        XRDB_LOAD_COLOR("dwm.color14", selbgcolor);
-      }
-    }
-  }
-
-  XCloseDisplay(display);
-}
-
-#endif
-
 void
 manage(Window w, XWindowAttributes *wa)
 {
@@ -1789,17 +1731,7 @@ setfullscreen(Client *c, int fullscreen)
 		arrange(c->mon);
 	}
 }
-#if GAPS
-void
-setgaps(const Arg *arg)
-{
-  if ((arg->i == 0) || (selmon->gappx + arg->i < 0))
-		selmon->gappx = 0;
-	else
-		selmon->gappx += arg->i;
-	arrange(selmon);
-}
-#endif
+
 void
 setlayout(const Arg *arg)
 {
@@ -2059,14 +1991,7 @@ togglefloating(const Arg *arg)
 			selmon->sel->w, selmon->sel->h, 0);
 	arrange(selmon);
 }
-#if FULLSCREEN
-void
-togglefullscr(const Arg *arg)
-{
-  if(selmon->sel)
-    setfullscreen(selmon->sel, !selmon->sel->isfullscreen);
-}
-#endif
+
 void
 toggletag(const Arg *arg)
 {
@@ -2473,19 +2398,6 @@ xerrorstart(Display *dpy, XErrorEvent *ee)
 	die("vxwm: another window manager is already running");
 	return -1;
 }
-
-#if XRDB
-void
-xrdb(const Arg *arg)
-{
-  loadxrdb();
-  int i;
-  for (i = 0; i < LENGTH(colors); i++)
-                scheme[i] = drw_scm_create(drw, colors[i], 3);
-  focus(NULL);
-  arrange(NULL);
-}
-#endif
 
 void
 zoom(const Arg *arg)

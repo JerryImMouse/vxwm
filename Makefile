@@ -11,10 +11,13 @@ all: vxwm
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-${OBJ}: config.h config.mk
+${OBJ}: config.h modules.h config.mk
 
 config.h:
 	cp config.def.h $@
+
+modules.h:
+	cp modules.def.h $@
 
 vxwm: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
