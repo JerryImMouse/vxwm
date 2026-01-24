@@ -1014,12 +1014,49 @@ grabkeys(void)
 	}
 }
 
+#if !WARP_TO_CLIENT //nah bro larp to client
 void
 incnmaster(const Arg *arg)
 {
 	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
 	arrange(selmon);
 }
+#elif WARP_TO_CLIENT && !WARP_TO_CLIENT_AFFECTED_BY_INCNMASTER
+void
+incnmaster(const Arg *arg)
+{
+	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
+	arrange(selmon);
+  if (selmon->sel) warptoclient(selmon->sel);
+}
+#else
+void
+incnmaster(const Arg *arg)
+{
+	Client *c;
+	unsigned int n;
+	
+	Client *moved = NULL;
+	
+	for (n = 0, c = nexttiled(selmon->clients); c; c = nexttiled(c->next), n++);
+	
+	if (arg->i > 0) {
+		moved = nexttiled(selmon->clients);
+		for (n = 0; moved && n < selmon->nmaster; n++)
+			moved = nexttiled(moved->next);
+	} else if (arg->i < 0 && selmon->nmaster > 0) {
+		moved = nexttiled(selmon->clients);
+		for (n = 1; moved && n < selmon->nmaster; n++)
+			moved = nexttiled(moved->next);
+	}
+	
+	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
+	arrange(selmon);
+	
+	if (moved)
+		warptoclient(moved);
+}
+#endif
 
 #ifdef XINERAMA
 static int
@@ -1127,6 +1164,10 @@ manage(Window w, XWindowAttributes *wa)
 	arrange(c->mon);
 	XMapWindow(dpy, c->win);
 	focus(NULL);
+#if WARP_TO_CLIENT
+    warptoclient(c);
+    focus(c);
+#endif
 }
 
 void
@@ -2061,6 +2102,10 @@ unmanage(Client *c, int destroyed)
 	focus(NULL);
 	updateclientlist();
 	arrange(m);
+#if WARP_TO_CLIENT
+  if (m == selmon && m->sel)
+    warptoclient(m->sel);
+#endif
 }
 
 void
@@ -2411,12 +2456,18 @@ void
 zoom(const Arg *arg)
 {
 	Client *c = selmon->sel;
+#if WARP_TO_CLIENT
+  Client *target = c;
+#endif
 
 	if (!selmon->lt[selmon->sellt]->arrange || !c || c->isfloating)
 		return;
 	if (c == nexttiled(selmon->clients) && !(c = nexttiled(c->next)))
 		return;
 	pop(c);
+#if WARP_TO_CLIENT
+  warptoclient(target);
+#endif
 }
 
 int

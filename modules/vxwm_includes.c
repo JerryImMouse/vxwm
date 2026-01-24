@@ -17,4 +17,8 @@
 #include "ewmh_tags/ewmh_tags.c"
 #endif
 
+#if WARP_TO_CLIENT
+#include "warptoclient/warptoclient.c"
+#endif
+
 #endif

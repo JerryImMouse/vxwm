@@ -14,5 +14,7 @@
 #define MOVE_IN_TILED 0 //support for moving windows in tiled mode
 #define EWMH_TAGS 0 //support for EWMH tags, recommended if you want to use external bars with less pain
 #define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 0 //so, basically, it does what it says
+#define WARP_TO_CLIENT 0 //it warps cursor, where? idk, but use it trust me bro
+#define WARP_TO_CLIENT_AFFECTED_BY_INCNMASTER 0
 
 #endif
