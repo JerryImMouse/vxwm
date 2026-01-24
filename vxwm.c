@@ -37,10 +37,6 @@ Solved issues:
 #endif /* XINERAMA */
 #include <X11/Xft/Xft.h>
 
-// #if XRDB
-// #include <X11/Xresource.h>
-// #endif
-
 #include "modules.h"
 #include "drw.h"
 #include "util.h"
@@ -57,29 +53,16 @@ Solved issues:
 #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 
-// #if XRDB
-// #define XRDB_LOAD_COLOR(R,V)    if (XrmGetResource(xrdb, R, NULL, &type, &value) == True) { \
-//                                   if (value.addr != NULL && strnlen(value.addr, 8) == 7 && value.addr[0] == '#') { \
-//                                     int i = 1; \
-//                                     for (; i <= 6; i++) { \
-//                                       if (value.addr[i] < 48) break; \
-//                                       if (value.addr[i] > 57 && value.addr[i] < 65) break; \
-//                                       if (value.addr[i] > 70 && value.addr[i] < 97) break; \
-//                                       if (value.addr[i] > 102) break; \
-//                                     } \
-//                                     if (i == 7) { \
-//                                       strncpy(V, value.addr, 7); \
-//                                       V[7] = '\0'; \
-//                                     } \
-//                                   } \
-//                                 }
-// #endif
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
 enum { SchemeNorm, SchemeSel }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
+#if !EWMH_TAGS
        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
+#else //EWMH_TAGS 
+       NetWMWindowTypeDialog, NetClientList, NetDesktopNames, NetDesktopViewport, NetNumberOfDesktops, NetCurrentDesktop, NetLast }; /* EWMH atoms */
+#endif
 enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
        ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
@@ -1812,6 +1795,12 @@ setup(void)
 	netatom[NetWMWindowType] = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
 	netatom[NetWMWindowTypeDialog] = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
 	netatom[NetClientList] = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
+#if EWMH_TAGS
+  netatom[NetDesktopViewport] = XInternAtom(dpy, "_NET_DESKTOP_VIEWPORT", False);
+	netatom[NetNumberOfDesktops] = XInternAtom(dpy, "_NET_NUMBER_OF_DESKTOPS", False);
+	netatom[NetCurrentDesktop] = XInternAtom(dpy, "_NET_CURRENT_DESKTOP", False);
+	netatom[NetDesktopNames] = XInternAtom(dpy, "_NET_DESKTOP_NAMES", False);
+#endif
 	/* init cursors */
 	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
 	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
@@ -1831,12 +1820,18 @@ setup(void)
 	XChangeProperty(dpy, wmcheckwin, netatom[NetWMCheck], XA_WINDOW, 32,
 		PropModeReplace, (unsigned char *) &wmcheckwin, 1);
 	XChangeProperty(dpy, wmcheckwin, netatom[NetWMName], utf8string, 8,
-		PropModeReplace, (unsigned char *) "vxwm", 3);
+		PropModeReplace, (unsigned char *) "vxwm", 4);
 	XChangeProperty(dpy, root, netatom[NetWMCheck], XA_WINDOW, 32,
 		PropModeReplace, (unsigned char *) &wmcheckwin, 1);
 	/* EWMH support per view */
 	XChangeProperty(dpy, root, netatom[NetSupported], XA_ATOM, 32,
 		PropModeReplace, (unsigned char *) netatom, NetLast);
+#if EWMH_TAGS
+	setnumdesktops();
+	setcurrentdesktop();
+	setdesktopnames();
+	setviewport();
+#endif
 	XDeleteProperty(dpy, root, netatom[NetClientList]);
 	/* select events */
 	wa.cursor = cursor[CurNormal]->cursor;
@@ -2005,6 +2000,9 @@ toggletag(const Arg *arg)
 		focus(NULL);
 		arrange(selmon);
 	}
+#if EWMH_TAGS
+  updatecurrentdesktop();
+#endif
 }
 
 void
@@ -2017,6 +2015,9 @@ toggleview(const Arg *arg)
 		focus(NULL);
 		arrange(selmon);
 	}
+#if EWMH_TAGS
+  updatecurrentdesktop();
+#endif
 }
 
 void
@@ -2331,6 +2332,9 @@ view(const Arg *arg)
 		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
 	focus(NULL);
 	arrange(selmon);
+#if EWMH_TAGS
+  updatecurrentdesktop();
+#endif
 }
 
 Client *

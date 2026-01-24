@@ -13,4 +13,8 @@
 #include "fullscreen/fullscreen.c"
 #endif
 
+#if EWMH_TAGS
+#include "ewmh_tags/ewmh_tags.c"
+#endif
+
 #endif

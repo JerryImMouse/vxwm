@@ -12,5 +12,6 @@
 #define BAR_PADDING 0 //support for changing the bar padding
 #define FULLSCREEN 0 //support for toggling fullscreen
 #define MOVE_IN_TILED 0 //support for moving windows in tiled mode
+#define EWMH_TAGS 0 //support for EWMH tags, recommended if you want to use external bars with less pain
 
 #endif
