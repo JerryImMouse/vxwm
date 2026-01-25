@@ -2371,21 +2371,36 @@ updatewmhints(Client *c)
 	}
 }
 
+#if TAG_TO_TAG
 void
 view(const Arg *arg)
 {
 	if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
-		return;
-	selmon->seltags ^= 1; /* toggle sel tagset */
-	if (arg->ui & TAGMASK)
-		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+	  selmon->seltags ^= 1; /* toggle sel tagset */
+  else {
+    selmon->seltags ^= 1; /* toggle sel tagset */
+    if (arg->ui & TAGMASK)
+		  selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+  }
 	focus(NULL);
 	arrange(selmon);
 #if EWMH_TAGS
   updatecurrentdesktop();
 #endif
 }
-
+#else
+void
+view(const Arg *arg)
+{
+    if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
+        return;
+    selmon->seltags ^= 1; /* toggle sel tagset */
+    if (arg->ui & TAGMASK)
+        selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+    focus(NULL);
+    arrange(selmon);
+}
+#endif
 Client *
 wintoclient(Window w)
 {

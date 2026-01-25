@@ -3,7 +3,7 @@
 
 /* vxwm compile-time options */
 #define BETTER_RESIZE 1 // yeah it's better resize support
-#define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // recomended to use on every pc, because cpu (software) rendered apps like ST will lagg when resizing even if you have a good pc.
+#define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // recomended to use on every pc, because cpu (software) rendered apps like ST will lag when resizing even if you have a good pc.
 #define USE_RESIZECLIENT_FUNC 0 // use resizeclient function of instead of resize function, not recommended
 #define GAPS 0 // gaps support 
 #define XRDB 0 //xrdb support
@@ -16,5 +16,6 @@
 #define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 0 //so, basically, it does what it says
 #define WARP_TO_CLIENT 0 //it warps cursor, where? idk, but use it trust me bro
 #define WARP_TO_CLIENT_AFFECTED_BY_INCNMASTER 0
-
+#define TAG_TO_TAG 1 //if you switch to tag where you already are, it'll switch to previous tag
+                     
 #endif
