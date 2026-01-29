@@ -1126,7 +1126,10 @@ manage(Window w, XWindowAttributes *wa)
 		c->mon = selmon;
 		applyrules(c);
 	}
-
+#if FLOATING_LAYOUT_FLOATS_WINDOWS
+  if (selmon->lt[selmon->sellt]->arrange == NULL)
+    c->isfloating = 1;
+#endif
 	if (c->x + WIDTH(c) > c->mon->wx + c->mon->ww)
 		c->x = c->mon->wx + c->mon->ww - WIDTH(c);
 	if (c->y + HEIGHT(c) > c->mon->wy + c->mon->wh)

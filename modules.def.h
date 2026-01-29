@@ -16,6 +16,6 @@
 #define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 0 //so, basically, it does what it says
 #define WARP_TO_CLIENT 0 //it warps cursor, where? idk, but use it trust me bro
 #define WARP_TO_CLIENT_AFFECTED_BY_INCNMASTER 0
-#define TAG_TO_TAG 1 //if you switch to tag where you already are, it'll switch to previous tag
-                     
+#define TAG_TO_TAG 0 //if you switch to tag where you already are, it'll switch to previous tag
+#define FLOATING_LAYOUT_FLOATS_WINDOWS 1 //by default, in floating layout, windows appear to be floating, but, for dwm, they are not. Because of this, when switching to tiled layout after floating layout, windows will be tiled, enable this if you don't want that behaviour.            
 #endif
