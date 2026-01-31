@@ -21,4 +21,8 @@
 #include "warptoclient/warptoclient.c"
 #endif
 
+#if ENCHANCED_TOGGLE_FLOATING
+#include "etf/etf.c"
+#endif
+
 #endif

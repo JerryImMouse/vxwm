@@ -97,6 +97,9 @@ struct Client {
 	Client *snext;
 	Monitor *mon;
 	Window win;
+#if ENCHANCED_TOGGLE_FLOATING
+  int sfx, sfy, sfw, sfh;
+#endif 
 };
 
 typedef struct {
@@ -1117,7 +1120,12 @@ manage(Window w, XWindowAttributes *wa)
 	c->w = c->oldw = wa->width;
 	c->h = c->oldh = wa->height;
 	c->oldbw = wa->border_width;
-
+#if ENCHANCED_TOGGLE_FLOATING
+  c->sfx = c->x;
+  c->sfy = c->y;
+  c->sfw = c->w;
+  c->sfh = c->h;
+#endif
 	updatetitle(c);
 	if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
 		c->mon = t->mon;
@@ -1344,6 +1352,14 @@ movemouse(const Arg *arg)
 		selmon = m;
 		focus(NULL);
 	}
+#if ENCHANCED_TOGGLE_FLOATING && RESTORE_SIZE_AND_POS_ETF 
+  if (c->isfloating) {
+    c->sfx = c->x;
+    c->sfy = c->y;
+    c->sfw = c->w;
+    c->sfh = c->h;
+  }
+#endif
 }
 
 Client *
@@ -1542,6 +1558,14 @@ resizemouse(const Arg *arg)
         selmon = m;
         focus(NULL);
     }
+#if ENCHANCED_TOGGLE_FLOATING && RESTORE_SIZE_AND_POS_ETF 
+  if (c->isfloating) {
+    c->sfx = c->x;
+    c->sfy = c->y;
+    c->sfw = c->w;
+    c->sfh = c->h;
+  }
+#endif
 }
 #else
 void
@@ -1605,6 +1629,14 @@ resizemouse(const Arg *arg)
 		selmon = m;
 		focus(NULL);
 	}
+#if ENCHANCED_TOGGLE_FLOATING && RESTORE_SIZE_AND_POS_ETF 
+  if (c->isfloating) {
+    c->sfx = c->x;
+    c->sfy = c->y;
+    c->sfw = c->w;
+    c->sfh = c->h;
+  }
+#endif
 }
 #endif //BETTER_RESIZE
 

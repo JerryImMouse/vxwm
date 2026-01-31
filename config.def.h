@@ -113,7 +113,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
-	{ MODKEY,                       XK_q,      togglefloating, {0} },
+	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} }, //default toggle floating bind.
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
 	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
@@ -135,6 +135,9 @@ static const Key keys[] = {
 #endif
 #if FULLSCREEN
   { MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
+#endif
+#if ENCHANCED_TOGGLE_FLOATING
+  { MODKEY,                       XK_q,      enchancedtogglefloating, {0} }, //enchanced toggle floating bind.
 #endif
 };
 
