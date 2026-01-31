@@ -20,7 +20,7 @@
 #define ALT_CENTER_OF_BAR_COLOR 0 // changes center of bar color to a dark color.
 #define BAR_HEIGHT 0 // Support for changing bar height.
 #define BAR_PADDING 0 // Support for changing the bar padding.
-
+#define OCCUPIED_TAGS_DECORATION 0 // This provides the ability to use an alternative text for tags which contain at least one window aka occupied tags.
 
 
 /* Misc */

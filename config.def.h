@@ -48,6 +48,10 @@ static const int sidepad = 5;       /* horizontal padding of bar */
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
+#if OCCUPIED_TAGS_DECORATION
+static const char *occupiedtags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+#endif
+
 static const Rule rules[] = {
 	/* xprop(1):
 	 *	WM_CLASS(STRING) = instance, class

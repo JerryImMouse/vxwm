@@ -7,12 +7,12 @@ fi
 
 if [ $arg = "-d" ]; then
         killall vxwm 2>/dev/null
-        vxwm
+        dbus-run-session vxwm
 elif [ $arg = "-h" ]; then
         echo "rvx:                A tool designed for quickly restarting vxwm"
-        echo "rvx -d:             Restarts vxwm without dbus-run-session"
+        echo "rvx -d:             Restarts vxwm with dbus-run-session"
         echo "rvx -h:             Show this message"
 else
         killall vxwm 2>/dev/null
-        dbus-run-session vxwm
+        vxwm
 fi

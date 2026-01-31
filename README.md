@@ -1,4 +1,10 @@
-# vxwm - Versatile X Window Manager for x11
+# vxwm - Versatile X Window Manager for x11 forked from dwm
+
+# Features
+vxwm is dwm on steroids, it can be as lightweight as you want.
+It has some patches for dwm pre installed that can be enabled/disabled by switching 0 to 1 or vice versa. (like in dwm-flexipatch)
+It also has some unique features like 8 sided resize, enchanced toggle floating, warp cursor and more! (They also can be toggled)
+Check modules.def.h for full list of features.
 
 ## Requirements
 
@@ -31,7 +37,7 @@ or for hot configuration reload, add something like this to your .xinitrc:
     vxwm &
     exec sleep infinity
 
-And then for restarting vxwm just kill vxwm's process and start it again.
+And then for restarting vxwm just kill vxwm's process and start it again or use rvx utility.
 
 In order to connect vxwm to a specific display, make sure that
 the DISPLAY environment variable is set correctly, e.g.:
@@ -54,3 +60,10 @@ like this in your .xinitrc:
 
 The configuration of vxwm is done by editing config.h and modules.h to
 match your preferences and (re)compiling the source code.
+
+
+
+
+## Acknowledgements
+
+vxwm was made in solo by a linux enthusiast wh1tepearl, many thanks to suckless.org and the [dwm] developers for making dwm in first place.

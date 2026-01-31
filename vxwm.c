@@ -433,7 +433,11 @@ attachstack(Client *c)
 void
 buttonpress(XEvent *e)
 {
+#if !OCCUPIED_TAGS_DECORATION
 	unsigned int i, x, click;
+#else
+  unsigned int i, x, click, occ;
+#endif
 	Arg arg = {0};
 	Client *c;
 	Monitor *m;
@@ -447,9 +451,20 @@ buttonpress(XEvent *e)
 		focus(NULL);
 	}
 	if (ev->window == selmon->barwin) {
+#if !OCCUPIED_TAGS_DECORATION
 		i = x = 0;
+#else 
+		i = x = occ = 0;
+		/* Bitmask of occupied tags */
+		for (c = m->clients; c; c = c->next)
+			occ |= c->tags;
+#endif
 		do
+#if !OCCUPIED_TAGS_DECORATION
 			x += TEXTW(tags[i]);
+#else 
+			x += TEXTW(occ & 1 << i ? occupiedtags[i] : tags[i]);
+#endif
 		while (ev->x >= x && ++i < LENGTH(tags));
 		if (i < LENGTH(tags)) {
 			click = ClkTagBar;
@@ -724,8 +739,10 @@ drawbar(Monitor *m)
 	int boxs = drw->fonts->h / 9;
 	int boxw = drw->fonts->h / 6 + 2;
 	unsigned int i, occ = 0, urg = 0;
-	Client *c;
-
+#if OCCUPIED_TAGS_DECORATION
+  const char *tagtext;	
+#endif
+  Client *c;
 	if (!m->showbar)
 		return;
 
@@ -748,6 +765,7 @@ drawbar(Monitor *m)
 	}
 	x = 0;
 	for (i = 0; i < LENGTH(tags); i++) {
+#if !OCCUPIED_TAGS_DECORATION
 		w = TEXTW(tags[i]);
 		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSel : SchemeNorm]);
 		drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
@@ -755,6 +773,12 @@ drawbar(Monitor *m)
 			drw_rect(drw, x + boxs, boxs, boxw, boxw,
 				m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
 				urg & 1 << i);
+#else
+		tagtext = occ & 1 << i ? occupiedtags[i] : tags[i];
+		w = TEXTW(tagtext);
+		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSel : SchemeNorm]);
+		drw_text(drw, x, 0, w, bh, lrpad / 2, tagtext, urg & 1 << i);
+#endif
 		x += w;
 	}
 	w = TEXTW(m->ltsymbol);
