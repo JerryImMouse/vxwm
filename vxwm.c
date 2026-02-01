@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details.
 This wm is forked from dwm 6.7 (but keep up with all dwm's updates), thanks suckless for their incredible work on dwm!
 
-vxwm 1.4 // by wh1tepearl
+vxwm 1.5 // by wh1tepearl
 
 Known issues:
 
