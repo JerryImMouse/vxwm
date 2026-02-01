@@ -1,5 +1,5 @@
 /* See LICENSE file for copyright and license details.
-This wm is forked from dwm 6.7, thanks suckless for their incredible work on dwm!
+This wm is forked from dwm 6.7 (but keep up with all dwm's updates), thanks suckless for their incredible work on dwm!
 
 vxwm 1.4 // by wh1tepearl
 
@@ -932,13 +932,13 @@ Atom
 getatomprop(Client *c, Atom prop)
 {
 	int di;
-	unsigned long dl;
+	unsigned long nitems, dl;
 	unsigned char *p = NULL;
 	Atom da, atom = None;
 
 	if (XGetWindowProperty(dpy, c->win, prop, 0L, sizeof atom, False, XA_ATOM,
-		&da, &di, &dl, &dl, &p) == Success && p) {
-		if (dl > 0)
+		&da, &di, &nitems, &dl, &p) == Success && p) {
+		if (nitems > 0)
 			atom = *(Atom *)p;
 		XFree(p);
 	}
