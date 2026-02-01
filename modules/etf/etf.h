@@ -1,1 +1,1 @@
-void enchancedtogglefloating(const Arg *arg);
+void enhancedtogglefloating(const Arg *arg);

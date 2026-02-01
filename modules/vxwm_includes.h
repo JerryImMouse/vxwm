@@ -21,7 +21,7 @@
 #include "warptoclient/warptoclient.h"
 #endif
 
-#if ENCHANCED_TOGGLE_FLOATING
+#if ENHANCED_TOGGLE_FLOATING
 #include "etf/etf.h"
 #endif
 

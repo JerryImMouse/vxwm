@@ -1,6 +1,6 @@
 #if !RESTORE_SIZE_AND_POS_ETF
 void
-enchancedtogglefloating(const Arg *arg)
+enhancedtogglefloating(const Arg *arg)
 {
     if (!selmon->sel || selmon->sel->isfullscreen)
         return;
@@ -27,15 +27,14 @@ enchancedtogglefloating(const Arg *arg)
 }
 #else // fuck this shit i almost pulled out all my hair when i wrote this, but atleast it works lol
 void
-enchancedtogglefloating(const Arg *arg)
+enhancedtogglefloating(const Arg *arg)
 {
     if (!selmon->sel || selmon->sel->isfullscreen)
         return;
 
     Client *c = selmon->sel;
-    int wasfloating = c->isfloating;
 
-    Layout *prevlayout = selmon->lt[selmon->sellt];
+    const Layout *prevlayout = selmon->lt[selmon->sellt];
 
     c->isfloating = !c->isfloating;
 
@@ -43,10 +42,14 @@ enchancedtogglefloating(const Arg *arg)
         int w = c->sfw > 0 ? c->sfw : c->w;
         int h = c->sfh > 0 ? c->sfh : c->h;
 
-        int x = c->sfx > 20 && c->sfy > 20 ? c->sfx : c->mon->wx + (c->mon->ww - w) / 2;
-        int y = c->sfx > 20 && c->sfy > 20 ? c->sfy : c->mon->wy + (c->mon->wh - h) / 2;
-
-        resize(c, x, y, w, h, 0);
+        if (!c->wasmanuallyedited) {
+                resize(c,
+                    c->mon->wx + (c->mon->ww - w) / 2,
+                    c->mon->wy + (c->mon->wh - h) / 2,
+                    w, h, 0);
+        } else {
+            resize(c, c->sfx, c->sfy, w, h, 0);
+        }
 
         c->sfx = c->x; c->sfy = c->y;
         c->sfw = c->w; c->sfh = c->h;

@@ -97,8 +97,11 @@ struct Client {
 	Client *snext;
 	Monitor *mon;
 	Window win;
-#if ENCHANCED_TOGGLE_FLOATING
+#if ENHANCED_TOGGLE_FLOATING
   int sfx, sfy, sfw, sfh;
+  #if RESTORE_SIZE_AND_POS_ETF
+    int wasmanuallyedited;
+  #endif
 #endif 
 };
 
@@ -411,7 +414,8 @@ arrange(Monitor *m)
 void
 arrangemon(Monitor *m)
 {
-	strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof m->ltsymbol);
+	strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof m->ltsymbol - 1);
+  m->ltsymbol[sizeof m->ltsymbol - 1] = '\0';
 	if (m->lt[m->sellt]->arrange)
 		m->lt[m->sellt]->arrange(m);
 }
@@ -1144,7 +1148,7 @@ manage(Window w, XWindowAttributes *wa)
 	c->w = c->oldw = wa->width;
 	c->h = c->oldh = wa->height;
 	c->oldbw = wa->border_width;
-#if ENCHANCED_TOGGLE_FLOATING
+#if ENHANCED_TOGGLE_FLOATING
   c->sfx = c->x;
   c->sfy = c->y;
   c->sfw = c->w;
@@ -1376,7 +1380,8 @@ movemouse(const Arg *arg)
 		selmon = m;
 		focus(NULL);
 	}
-#if ENCHANCED_TOGGLE_FLOATING && RESTORE_SIZE_AND_POS_ETF 
+#if ENHANCED_TOGGLE_FLOATING && RESTORE_SIZE_AND_POS_ETF
+  c->wasmanuallyedited = 1;
   if (c->isfloating) {
     c->sfx = c->x;
     c->sfy = c->y;
@@ -1502,10 +1507,10 @@ resizemouse(const Arg *arg)
 
     int rx, ry;
     Window junkwin;
+    int junk_signed;
     unsigned int junk;
-    if (!XQueryPointer(dpy, c->win, &junkwin, &junkwin, &junk, &junk, &rx, &ry, &junk))
+    if (!XQueryPointer(dpy, c->win, &junkwin, &junkwin, &junk_signed, &junk_signed, &rx, &ry, &junk))
         return;
-
     int left   = rx < orig_w / 3;
     int right  = rx > orig_w * 2 / 3;
     int top    = ry < orig_h / 3;
@@ -1582,7 +1587,8 @@ resizemouse(const Arg *arg)
         selmon = m;
         focus(NULL);
     }
-#if ENCHANCED_TOGGLE_FLOATING && RESTORE_SIZE_AND_POS_ETF 
+#if ENHANCED_TOGGLE_FLOATING && RESTORE_SIZE_AND_POS_ETF
+  c->wasmanuallyedited = 1;
   if (c->isfloating) {
     c->sfx = c->x;
     c->sfy = c->y;
@@ -1653,7 +1659,8 @@ resizemouse(const Arg *arg)
 		selmon = m;
 		focus(NULL);
 	}
-#if ENCHANCED_TOGGLE_FLOATING && RESTORE_SIZE_AND_POS_ETF 
+#if ENHANCED_TOGGLE_FLOATING && RESTORE_SIZE_AND_POS_ETF
+  c->wasmanuallyedited = 1;
   if (c->isfloating) {
     c->sfx = c->x;
     c->sfy = c->y;
@@ -1826,7 +1833,8 @@ setlayout(const Arg *arg)
 		selmon->sellt ^= 1;
 	if (arg && arg->v)
 		selmon->lt[selmon->sellt] = (Layout *)arg->v;
-	strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol);
+  strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol - 1);
+  selmon->ltsymbol[sizeof selmon->ltsymbol - 1] = '\0';
 	if (selmon->sel)
 		arrange(selmon);
 	else

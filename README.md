@@ -3,7 +3,7 @@
 # Features
 vxwm is dwm on steroids, it can be as lightweight as you want.
 It has some patches for dwm pre installed that can be enabled/disabled by switching 0 to 1 or vice versa. (like in dwm-flexipatch)
-It also has some unique features like 8 sided resize, enchanced toggle floating, warp cursor and more! (They also can be toggled)
+It also has some unique features like 8 sided resize, enhanced toggle floating, warp cursor and more! (They also can be toggled)
 Check modules.def.h for full list of features.
 
 ## Requirements

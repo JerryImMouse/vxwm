@@ -140,8 +140,13 @@ static const Key keys[] = {
 #if FULLSCREEN
   { MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
 #endif
-#if ENCHANCED_TOGGLE_FLOATING
-  { MODKEY,                       XK_q,      enchancedtogglefloating, {0} }, //enchanced toggle floating bind.
+#if ENHANCED_TOGGLE_FLOATING
+  { MODKEY,                       XK_q,      enhancedtogglefloating, {0} }, //enhanced toggle floating bind.
+#endif
+#if GAPS
+  { MODKEY,                       XK_minus,  setgaps,        {.i = -1 } },
+  { MODKEY,                       XK_equal,  setgaps,        {.i = +1 } },
+  { MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
 #endif
 };
 
