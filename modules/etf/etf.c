@@ -24,6 +24,10 @@ enhancedtogglefloating(const Arg *arg)
     }
 
     arrange(selmon);
+
+#if WARP_TO_CLIENT && WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_ENHANCED_TOGGLE_FLOATING
+    warptoclient(selmon->sel); // larptoclient(selmon->sel);
+#endif
 }
 #else // fuck this shit i almost pulled out all my hair when i wrote this, but atleast it works lol
 void
@@ -71,5 +75,9 @@ enhancedtogglefloating(const Arg *arg)
     }
 
     arrange(selmon);
+
+#if WARP_TO_CLIENT && WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_ENHANCED_TOGGLE_FLOATING
+    warptoclient(selmon->sel); // larptoclient(selmon->sel);
+#endif
 }
 #endif

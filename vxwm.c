@@ -924,6 +924,9 @@ focusstack(const Arg *arg)
 	}
 	if (c) {
 		focus(c);
+#if WARP_TO_CLIENT && WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_FOCUSSTACK
+    warptoclient(c);
+#endif   
 		restack(selmon);
 	}
 }
@@ -1045,22 +1048,8 @@ grabkeys(void)
 	}
 }
 
-#if !WARP_TO_CLIENT //nah bro larp to client
-void
-incnmaster(const Arg *arg)
-{
-	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
-	arrange(selmon);
-}
-#elif WARP_TO_CLIENT && !WARP_TO_CLIENT_AFFECTED_BY_INCNMASTER
-void
-incnmaster(const Arg *arg)
-{
-	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
-	arrange(selmon);
-  if (selmon->sel) warptoclient(selmon->sel);
-}
-#else
+#if WARP_TO_CLIENT && WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_INCNMASTER
+//  LARP_TO_CLIENT
 void
 incnmaster(const Arg *arg)
 {
@@ -1087,6 +1076,16 @@ incnmaster(const Arg *arg)
 	if (moved)
 		warptoclient(moved);
 }
+
+#else
+
+void
+incnmaster(const Arg *arg)
+{
+	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
+	arrange(selmon);
+}
+
 #endif
 
 #ifdef XINERAMA
@@ -1203,9 +1202,8 @@ manage(Window w, XWindowAttributes *wa)
 	arrange(c->mon);
 	XMapWindow(dpy, c->win);
 	focus(NULL);
-#if WARP_TO_CLIENT
+#if WARP_TO_CLIENT && WARP_TO_CENTER_OF_NEW_WINDOW 
     warptoclient(c);
-    focus(c);
 #endif
 }
 
@@ -2169,7 +2167,7 @@ unmanage(Client *c, int destroyed)
 	focus(NULL);
 	updateclientlist();
 	arrange(m);
-#if WARP_TO_CLIENT
+#if WARP_TO_CLIENT && WARP_TO_CENTER_OF_PREVIOUS_WINDOW
   if (m == selmon && m->sel)
     warptoclient(m->sel);
 #endif
@@ -2538,7 +2536,7 @@ void
 zoom(const Arg *arg)
 {
 	Client *c = selmon->sel;
-#if WARP_TO_CLIENT
+#if WARP_TO_CLIENT && WARP_TO_CENTER_OF_ZOOMED_WINDOW
   Client *target = c;
 #endif
 
@@ -2547,7 +2545,7 @@ zoom(const Arg *arg)
 	if (c == nexttiled(selmon->clients) && !(c = nexttiled(c->next)))
 		return;
 	pop(c);
-#if WARP_TO_CLIENT
+#if WARP_TO_CLIENT && WARP_TO_CENTER_OF_ZOOMED_WINDOW
   warptoclient(target);
 #endif
 }

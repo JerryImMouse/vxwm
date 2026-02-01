@@ -14,6 +14,11 @@ In order to build vxwm you need the Xlib header files.
 
 ## Installation
 
+Clone this repository and cd into it.
+
+    git clone https://codeberg.org/wh1tepearl/vxwm.git
+    cd vxwm
+
 Edit config.mk to match your local setup (vxwm is installed into
 the /usr/local namespace by default).
 
