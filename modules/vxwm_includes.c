@@ -25,4 +25,8 @@
 #include "etf/etf.c"
 #endif
 
+#if BETTER_RESIZE
+#include "betterresize/betterresize.c"
+#endif
+
 #endif
