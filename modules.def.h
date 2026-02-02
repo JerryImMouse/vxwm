@@ -44,9 +44,19 @@
 
 
 
-/* Floating */ // Recomended to use with ALWAYS_CENTER_NEW_FLOATING_WINDOWS set to 1.
-#define FLOATING_LAYOUT_FLOATS_WINDOWS 0 // By default, in floating layout, windows appear to be floating, but, for dwm, they are not. Because of this, when switching to tiled layout after floating layout, windows will be tiled, enable this if you don't want that behaviour.
-#define ENHANCED_TOGGLE_FLOATING 0 // Support for enhanced toggle floating, when toggling floating window will resize to its natural size, and in floating layout, window will be tiled.
+/* Floating */
+/* Recomended to use with ALWAYS_CENTER_NEW_FLOATING_WINDOWS set to 1. */ 
+
+#define FLOATING_LAYOUT_FLOATS_WINDOWS 0 
+/* By default, in floating layout, windows appear to be floating, but, for dwm,
+   they are not. Because of this, when switching to tiled layout after floating
+   layout, windows will be tiled, enable this if you don't want that behaviour. */
+
+#define ENHANCED_TOGGLE_FLOATING 0
+/* Support for enhanced toggle floating, when toggling floating window will 
+   resize to its natural size, and in floating layout, window will be tiled. 
+   REQUIRES "FLOATING_LAYOUT_FLOATS_WINDOWS" SET TO 1 TO WORK PROPERLY. */
+
 #define RESTORE_SIZE_AND_POS_ETF 0 // Restore previous size and position of window when toggling floating 
 
 #endif
