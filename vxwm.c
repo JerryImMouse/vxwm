@@ -54,7 +54,13 @@ Solved issues:
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 
 /* enums */
-enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
+enum { CurNormal, CurResize, CurMove,
+#if BETTER_RESIZE && BR_CHANGE_CURSOR
+       CurNW, CurNE, CurSW, CurSE,  // corner cursors
+       CurN, CurS, CurE, CurW,       // edge cursors
+#endif
+       CurLast }; /* cursor */
+
 enum { SchemeNorm, SchemeSel }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
@@ -1513,9 +1519,20 @@ resizemouse(const Arg *arg)
     int right  = rx > orig_w * 2 / 3;
     int top    = ry < orig_h / 3;
     int bottom = ry > orig_h * 2 / 3;
-
-    Cursor cur = cursor[CurResize]->cursor;
-
+#if BR_CHANGE_CURSOR
+    Cursor cur;
+    if (top && left)         cur = cursor[CurNW]->cursor;
+    else if (top && right)   cur = cursor[CurNE]->cursor;
+    else if (bottom && left) cur = cursor[CurSW]->cursor;
+    else if (bottom && right) cur = cursor[CurSE]->cursor;
+    else if (top)            cur = cursor[CurN]->cursor;
+    else if (bottom)         cur = cursor[CurS]->cursor;
+    else if (left)           cur = cursor[CurW]->cursor;
+    else if (right)          cur = cursor[CurE]->cursor;
+    else                     cur = cursor[CurResize]->cursor; // fallback
+#else 
+    Cursor cur = cursor[CurResize]->cursor; 
+#endif
     if (XGrabPointer(dpy, root, False, MOUSEMASK, GrabModeAsync, GrabModeAsync,
                      None, cur, CurrentTime) != GrabSuccess)
         return;
@@ -1915,6 +1932,16 @@ setup(void)
 	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
 	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
 	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
+#if BETTER_RESIZE && BR_CHANGE_CURSOR
+  cursor[CurNW] = drw_cur_create(drw, XC_top_left_corner);
+  cursor[CurNE] = drw_cur_create(drw, XC_top_right_corner);
+  cursor[CurSW] = drw_cur_create(drw, XC_bottom_left_corner);
+  cursor[CurSE] = drw_cur_create(drw, XC_bottom_right_corner);
+  cursor[CurN]  = drw_cur_create(drw, XC_top_side);
+  cursor[CurS]  = drw_cur_create(drw, XC_bottom_side);
+  cursor[CurE]  = drw_cur_create(drw, XC_right_side);
+  cursor[CurW]  = drw_cur_create(drw, XC_left_side);
+#endif
 	/* init appearance */
 	scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
 	for (i = 0; i < LENGTH(colors); i++)

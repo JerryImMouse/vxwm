@@ -4,7 +4,8 @@
 /* vxwm compile-time options */
 
 /* Move/Resize */
-#define BETTER_RESIZE 1 // yeah it's better resize support.
+#define BETTER_RESIZE 1 // Enables 8 sided window resize.
+#define BR_CHANGE_CURSOR 1 // When resizing windows while having BETTER_RESIZE set to 1, the cursor will change depending on from which side you are resizing.
 #define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // Recomended to use on every pc, because cpu (software) rendered apps like ST will lagg when resizing even if you have a good pc.
 #define USE_RESIZECLIENT_FUNC 0 // Use resizeclient function of instead of resize function which ignores window's resize hints, not recommended.
 
