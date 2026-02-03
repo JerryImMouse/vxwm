@@ -47,6 +47,11 @@
    behaviour being enabled, for example when you use a compositor like picom - your
    windows will fade in and out when you switch dwm tags. */
 
+#define PDWM_LIKE_TAGS_ANIMATION 0
+/* This makes function showhide be like in pdwm, if using a compositor like picom,
+   this results in an alternative tags animation. */
+
+
 
 /* Floating */
 /* Recomended to use with ALWAYS_CENTER_NEW_FLOATING_WINDOWS set to 1. */ 

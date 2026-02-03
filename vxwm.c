@@ -1891,9 +1891,13 @@ showhide(Client *c)
 		/* hide clients bottom up */
 		showhide(c->snext);
 #if !WINDOWMAP
-		XMoveWindow(dpy, c->win, WIDTH(c) * -2, c->y);
+  #if !PDWM_LIKE_TAGS_ANIMATION
+      XMoveWindow(dpy, c->win, WIDTH(c) * -2, c->y);
+  #else
+      XMoveWindow(dpy, c->win, c->mon->wx + c->mon->ww / 2, -(HEIGHT(c)));
+  #endif
 #else
-    window_unmap(dpy, c->win, root, 1);
+       window_unmap(dpy, c->win, root, 1);
 #endif
   }
 }
