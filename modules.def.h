@@ -1,4 +1,4 @@
-#ifndef MODULES_H
+##ifndef MODULES_H
 #define MODULES_H
 
 /* vxwm compile-time options */
@@ -14,6 +14,20 @@
 /* Kind of eye candy */
 #define GAPS 0 // Gaps support.
 #define XRDB 0 // Xrdb support.
+
+
+
+/* Tagging */
+#define TAG_TO_TAG 0 // If you switch to tag where you already are, it'll switch to previous tag.
+#define SLOWER_TAGS_ANIMATION 0 // This slows down tags animation speed, which results in smoother tags animations (requires picom to see any difference).
+#define WINDOWMAP 0
+/* This makes the windows get mapped or unmapped in X11. This results in certain
+   behaviour being enabled, for example when you use a compositor like picom - your
+   windows will fade in and out when you switch dwm tags. */
+
+#define PDWM_LIKE_TAGS_ANIMATION 0
+/* This makes function showhide be like in pdwm, if using a compositor like picom,
+   this results in an alternative tags animation. */
 
 
 
@@ -41,15 +55,6 @@
 #define MOVE_IN_TILED 0 // Support for moving windows in tiled mode.
 #define EWMH_TAGS 0 // Support for EWMH tags, recommended if you want to use external bars with less pain
 #define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 0 //so, basically, it does what it says.
-#define TAG_TO_TAG 0 // If you switch to tag where you already are, it'll switch to previous tag.
-#define WINDOWMAP 0
-/* This makes the windows get mapped or unmapped in X11. This results in certain
-   behaviour being enabled, for example when you use a compositor like picom - your
-   windows will fade in and out when you switch dwm tags. */
-
-#define PDWM_LIKE_TAGS_ANIMATION 0
-/* This makes function showhide be like in pdwm, if using a compositor like picom,
-   this results in an alternative tags animation. */
 
 
 
