@@ -1879,15 +1879,23 @@ showhide(Client *c)
 		return;
 	if (ISVISIBLE(c)) {
 		/* show clients top down */
+#if !WINDOWMAP
 		XMoveWindow(dpy, c->win, c->x, c->y);
 		if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && !c->isfullscreen)
 			resize(c, c->x, c->y, c->w, c->h, 0);
-		showhide(c->snext);
+#else
+    window_map(dpy, c, 1);
+#endif
+    showhide(c->snext);
 	} else {
 		/* hide clients bottom up */
 		showhide(c->snext);
+#if !WINDOWMAP
 		XMoveWindow(dpy, c->win, WIDTH(c) * -2, c->y);
-	}
+#else
+    window_unmap(dpy, c->win, root, 1);
+#endif
+  }
 }
 
 void
@@ -2342,6 +2350,7 @@ updatewmhints(Client *c)
 }
 
 #if TAG_TO_TAG
+
 void
 view(const Arg *arg)
 {
@@ -2357,8 +2366,10 @@ view(const Arg *arg)
 #if EWMH_TAGS
   updatecurrentdesktop();
 #endif
+
 }
 #else
+
 void
 view(const Arg *arg)
 {
@@ -2369,8 +2380,12 @@ view(const Arg *arg)
         selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
     focus(NULL);
     arrange(selmon);
+#if EWMH_TAGS
+    updatecurrentdesktop();
+#endif
 }
 #endif
+
 Client *
 wintoclient(Window w)
 {

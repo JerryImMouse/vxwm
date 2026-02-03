@@ -29,4 +29,8 @@
 #include "betterresize/betterresize.c"
 #endif
 
+#if WINDOWMAP
+#include "windowmap/windowmap.c"
+#endif
+
 #endif

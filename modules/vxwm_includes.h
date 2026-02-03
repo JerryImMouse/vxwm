@@ -25,4 +25,8 @@
 #include "etf/etf.h"
 #endif
 
+#if WINDOWMAP
+#include "windowmap/windowmap.h"
+#endif
+
 #endif

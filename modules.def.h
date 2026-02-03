@@ -42,7 +42,10 @@
 #define EWMH_TAGS 0 // Support for EWMH tags, recommended if you want to use external bars with less pain
 #define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 0 //so, basically, it does what it says.
 #define TAG_TO_TAG 0 // If you switch to tag where you already are, it'll switch to previous tag.
-
+#define WINDOWMAP 0
+/* This makes the windows get mapped or unmapped in X11. This results in certain
+   behaviour being enabled, for example when you use a compositor like picom - your
+   windows will fade in and out when you switch dwm tags. */
 
 
 /* Floating */
