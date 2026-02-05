@@ -53,6 +53,27 @@ Solved issues:
 #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 
+#if !WINDOWMAP
+  #if !PDWM_LIKE_TAGS_ANIMATION
+    #if !SLOWER_TAGS_ANIMATION
+      #define SHOWHIDEPROFILE XMoveWindow(dpy, c->win, WIDTH(c) * -2, c->y);  // Vanilla
+    #else
+      #define SHOWHIDEPROFILE XMoveWindow(dpy, c->win, WIDTH(c) * -1, c->y);  // Slower vanilla
+    #endif
+  #else
+    #if !SLOWER_TAGS_ANIMATION
+      #define SHOWHIDEPROFILE XMoveWindow(dpy, c->win, c->mon->wx + c->mon->ww / 2, -(HEIGHT(c) * 3) / 2);  // pdwm vanilla
+    #else
+      #define SHOWHIDEPROFILE XMoveWindow(dpy, c->win, c->mon->wx + c->mon->ww / 2, -(HEIGHT(c)));  // Slower pdwm
+    #endif
+  #endif
+#else
+  #define SHOWHIDEPROFILE 		if (c->ismapped) { \
+			                          window_unmap(dpy, c->win, root, 1); \
+			                          c->ismapped = 0; \
+		                          } 
+#endif
+
 /* enums */
 enum { CurNormal, CurResize, CurMove,
 #if BETTER_RESIZE && BR_CHANGE_CURSOR
@@ -103,6 +124,9 @@ struct Client {
 	Client *snext;
 	Monitor *mon;
 	Window win;
+#if WINDOWMAP
+  int ismapped;
+#endif
 #if ENHANCED_TOGGLE_FLOATING
   int sfx, sfy, sfw, sfh;
   #if RESTORE_SIZE_AND_POS_ETF
@@ -1147,6 +1171,9 @@ manage(Window w, XWindowAttributes *wa)
 
 	c = ecalloc(1, sizeof(Client));
 	c->win = w;
+#if WINDOWMAP
+  c->ismapped = 0;
+#endif
 	/* geometry */
 	c->x = c->oldx = wa->x;
 	c->y = c->oldy = wa->y;
@@ -1877,6 +1904,15 @@ showhide(Client *c)
 {
 	if (!c)
 		return;
+	
+#if WINDOWMAP
+	static int grabbed = 0;
+	if (!grabbed) {
+		XGrabServer(dpy);
+		grabbed = 1;
+	}
+#endif
+	
 	if (ISVISIBLE(c)) {
 		/* show clients top down */
 #if !WINDOWMAP
@@ -1884,30 +1920,25 @@ showhide(Client *c)
 		if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && !c->isfullscreen)
 			resize(c, c->x, c->y, c->w, c->h, 0);
 #else
-    window_map(dpy, c, 1);
+		if (!c->ismapped) {
+			window_map(dpy, c, 1);
+			c->ismapped = 1;
+		}
 #endif
-    showhide(c->snext);
+		showhide(c->snext);
 	} else {
 		/* hide clients bottom up */
 		showhide(c->snext);
-#if !WINDOWMAP
- #if !PDWM_LIKE_TAGS_ANIMATION
-  #if !SLOWER_TAGS_ANIMATION 
-      XMoveWindow(dpy, c->win, WIDTH(c) * -2, c->y); // fast
-  #else
-      XMoveWindow(dpy, c->win, WIDTH(c) * -1, c->y); // slow
-  #endif // SLOWER_TAGS_ANIMATION 
- #else // PDWM_LIKE_TAGS_ANIMATION
-  #if !SLOWER_TAGS_ANIMATION 
-    XMoveWindow(dpy, c->win, c->mon->wx + c->mon->ww / 2, -(HEIGHT(c) * 3) / 2);
-  #else
-    XMoveWindow(dpy, c->win, c->mon->wx + c->mon->ww / 2, -(HEIGHT(c)));
-  #endif // close SLOWER_TAGS_ANIMATION 
- #endif // close PDWM_LIKE_TAGS_ANIMATION
-#else
-      window_unmap(dpy, c->win, root, 1);
+		SHOWHIDEPROFILE
+	}
+	
+#if WINDOWMAP
+	if (!c->snext && grabbed) {
+		XUngrabServer(dpy);
+		XSync(dpy, False);
+		grabbed = 0;
+	}
 #endif
-  }
 }
 
 void

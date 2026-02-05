@@ -25,7 +25,6 @@ window_unmap(Display *dpy, Window win, Window root, int iconify)
 {
 	static XWindowAttributes ca, ra;
 
-	XGrabServer(dpy);
 	XGetWindowAttributes(dpy, root, &ra);
 	XGetWindowAttributes(dpy, win, &ca);
 
@@ -40,5 +39,4 @@ window_unmap(Display *dpy, Window win, Window root, int iconify)
 
 	XSelectInput(dpy, root, ra.your_event_mask);
 	XSelectInput(dpy, win, ca.your_event_mask);
-	XUngrabServer(dpy);
 }

@@ -1,5 +1,4 @@
-##ifndef MODULES_H
-#define MODULES_H
+#pragma once
 
 /* vxwm compile-time options */
 
@@ -22,8 +21,9 @@
 #define SLOWER_TAGS_ANIMATION 0 // This slows down tags animation speed, which results in smoother tags animations (requires picom to see any difference).
 #define WINDOWMAP 0
 /* This makes the windows get mapped or unmapped in X11. This results in certain
-   behaviour being enabled, for example when you use a compositor like picom - your
-   windows will fade in and out when you switch dwm tags. */
+   behaviour being enabled, some examples are: fix issues with some applications 
+   losing input forever after a tag change or when you use a compositor like picom, 
+   your windows will fade in and out when you switch dwm tags. */
 
 #define PDWM_LIKE_TAGS_ANIMATION 0
 /* This makes function showhide be like in pdwm, if using a compositor like picom,
@@ -72,5 +72,3 @@
    REQUIRES "FLOATING_LAYOUT_FLOATS_WINDOWS" SET TO 1 TO WORK PROPERLY. */
 
 #define RESTORE_SIZE_AND_POS_ETF 0 // Restore previous size and position of window when toggling floating 
-
-#endif

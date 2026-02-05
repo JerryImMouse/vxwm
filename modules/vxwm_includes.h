@@ -1,5 +1,4 @@
-#ifndef VXWM_INCLUDES_H
-#define VXWM_INCLUDES_H
+#pragma once
 
 #if GAPS
 #include "gaps/gaps.h"
@@ -27,6 +26,4 @@
 
 #if WINDOWMAP
 #include "windowmap/windowmap.h"
-#endif
-
 #endif

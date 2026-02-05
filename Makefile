@@ -42,5 +42,6 @@ install: all
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/vxwm
+	rm -f ${DESTDIR}${PREFIX}/bin/rvx
 
 .PHONY: all clean dist install uninstall
