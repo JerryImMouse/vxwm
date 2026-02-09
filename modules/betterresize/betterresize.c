@@ -77,10 +77,12 @@ resizemouse(const Arg *arg)
 
             int dx_final = nw - orig_w;
             int dy_final = nh - orig_h;
-
+#if !RESIZINIG_WINDOWS_IN_ALL_LAYOUTS_FLOATS_THEM
             if (!c->isfloating && selmon->lt[selmon->sellt]->arrange &&
               (abs(dx_final) > snap || abs(dy_final) > snap)) {
-
+#else
+            if (!c->isfloating && (abs(dx_final) > snap || abs(dy_final) > snap)) {
+#endif
               if (nx >= selmon->wx && nx + nw <= selmon->wx + selmon->ww &&
                 ny >= selmon->wy && ny + nh <= selmon->wy + selmon->wh) {
 

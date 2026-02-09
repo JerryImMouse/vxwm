@@ -1558,9 +1558,14 @@ resizemouse(const Arg *arg)
 			if (c->mon->wx + nw >= selmon->wx && c->mon->wx + nw <= selmon->wx + selmon->ww
 			&& c->mon->wy + nh >= selmon->wy && c->mon->wy + nh <= selmon->wy + selmon->wh)
 			{
+#if !RESIZINIG_WINDOWS_IN_ALL_LAYOUTS_FLOATS_THEM
 				if (!c->isfloating && selmon->lt[selmon->sellt]->arrange
 				&& (abs(nw - c->w) > snap || abs(nh - c->h) > snap))
 					togglefloating(NULL);
+#else
+      	if (!c->isfloating && (abs(nw - c->w) > snap || abs(nh - c->h) > snap))
+					togglefloating(NULL);
+#endif
 			}
 			if (!selmon->lt[selmon->sellt]->arrange || c->isfloating)
 #if USE_RESIZECLIENT_FUNC   

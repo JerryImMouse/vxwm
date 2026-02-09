@@ -7,7 +7,7 @@
 #define BR_CHANGE_CURSOR 1 // When resizing windows while having BETTER_RESIZE set to 1, the cursor will change depending on from which side you are resizing.
 #define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // Recomended to use on every pc, because cpu (software) rendered apps like ST will lagg when resizing even if you have a good pc.
 #define USE_RESIZECLIENT_FUNC 0 // Use resizeclient function of instead of resize function which ignores window's resize hints, not recommended.
-
+#define RESIZINIG_WINDOWS_IN_ALL_LAYOUTS_FLOATS_THEM 0 // yeah.
 
 
 /* Kind of eye candy */
@@ -69,6 +69,6 @@
 #define ENHANCED_TOGGLE_FLOATING 0
 /* Support for enhanced toggle floating, when toggling floating window will 
    resize to its natural size, and in floating layout, window will be tiled. 
-   REQUIRES "FLOATING_LAYOUT_FLOATS_WINDOWS" SET TO 1 TO WORK PROPERLY. */
+   REQUIRES "FLOATING_LAYOUT_FLOATS_WINDOWS" AND "RESIZINIG_WINDOWS_IN_ALL_LAYOUTS_FLOATS_THEM" SET TO 1 TO WORK PROPERLY. */
 
 #define RESTORE_SIZE_AND_POS_ETF 0 // Restore previous size and position of window when toggling floating 
