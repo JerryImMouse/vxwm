@@ -18,6 +18,7 @@ window_map(Display *dpy, Client *c, int deiconify)
 	XMoveResizeWindow(dpy, c->win, c->x, c->y, c->w, c->h);
 	XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime);
 	XMapWindow(dpy, win);
+  focus(NULL);
 }
 
 void
@@ -33,7 +34,7 @@ window_unmap(Display *dpy, Window win, Window root, int iconify)
 	XSelectInput(dpy, win, ca.your_event_mask & ~StructureNotifyMask);
 
 	XUnmapWindow(dpy, win);
-
+  focus(NULL);
 	if (iconify)
 		window_set_state(dpy, win, IconicState);
 
