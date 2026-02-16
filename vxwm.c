@@ -1418,10 +1418,10 @@ movemouse(const Arg *arg)
 
 					cc = cc->next;
 				}
-
+#if !INFINITE_TAGS
 				if (cc) {
 					Client *cl1, *cl2, ocl1;
-					
+
 					if (!selmon->lt[selmon->sellt]->arrange) return;
 
 					cl1 = c;
@@ -1433,21 +1433,70 @@ movemouse(const Arg *arg)
 					cl1->y = cl2->y;
 					cl1->w = cl2->w;
 					cl1->h = cl2->h;
-					
+
 					cl2->win = ocl1.win;
 					strcpy(cl2->name, ocl1.name);
 					cl2->x = ocl1.x;
 					cl2->y = ocl1.y;
 					cl2->w = ocl1.w;
 					cl2->h = ocl1.h;
-					
+
 					selmon->sel = cl2;
 
 					c = cc;
 					focus(c);
-					
+
 					arrange(cl1->mon);
 				}
+#else // TODO: make this an option in modules.h
+				if (cc) {
+				  Client *cl1, *cl2, ocl1;
+
+				  if (!selmon->lt[selmon->sellt]->arrange) return;
+
+				  cl1 = c;
+				  cl2 = cc;
+				  ocl1 = *cl1;
+
+				  strcpy(cl1->name, cl2->name);
+				  cl1->win = cl2->win;
+				  cl1->x = cl2->x;
+				  cl1->y = cl2->y;
+				  cl1->w = cl2->w;
+				  cl1->h = cl2->h;
+
+				  cl2->win = ocl1.win;
+				  strcpy(cl2->name, ocl1.name);
+				  cl2->x = ocl1.x;
+				  cl2->y = ocl1.y;
+				  cl2->w = ocl1.w;
+				  cl2->h = ocl1.h;
+
+				  int tmp_cx = cl1->saved_cx;
+				  int tmp_cy = cl1->saved_cy;
+				  int tmp_cw = cl1->saved_cw;
+				  int tmp_ch = cl1->saved_ch;
+				  int tmp_was = cl1->was_on_canvas;
+
+				  cl1->saved_cx = cl2->saved_cx;
+				  cl1->saved_cy = cl2->saved_cy;
+				  cl1->saved_cw = cl2->saved_cw;
+				  cl1->saved_ch = cl2->saved_ch;
+				  cl1->was_on_canvas = cl2->was_on_canvas;
+
+				  cl2->saved_cx = tmp_cx;
+				  cl2->saved_cy = tmp_cy;
+				  cl2->saved_cw = tmp_cw;
+				  cl2->saved_ch = tmp_ch;
+				  cl2->was_on_canvas = tmp_was;
+
+				  selmon->sel = cl2;
+				  c = cc;
+				  focus(c);
+
+				  arrange(cl1->mon);
+		    }
+#endif
 			}
 #endif
 			break;
