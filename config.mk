@@ -1,5 +1,5 @@
 # vxwm version
-VERSION = 1.5
+VERSION = 2.0
 
 # Customize below to fit your system
 
@@ -36,4 +36,4 @@ LDFLAGS  = ${LIBS}
 #LDFLAGS = ${LIBS}
 
 # compiler and linker
-CC = gcc
+CC = cc

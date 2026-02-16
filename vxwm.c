@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details.
 This wm is forked from dwm 6.7 (but keep up with all dwm's updates), thanks suckless for their incredible work on dwm!
 
-vxwm 1.5 // by wh1tepearl
+vxwm 2.0 // by wh1tepearl
 
 Known issues:
 
@@ -14,7 +14,7 @@ Solved issues:
 4. When using BETTER_RESIZE window is not becaming floating when resizing
 */
 
-//Modules configuration is in modules.h
+// Modules configuration is in modules.h
 
 #include <errno.h>
 #include <locale.h>
@@ -40,6 +40,16 @@ Solved issues:
 #include "modules.h"
 #include "drw.h"
 #include "util.h"
+
+#if INFINITE_TAGS && !WINDOWMAP
+    #undef WINDOWMAP
+    #define WINDOWMAP 1
+#endif
+
+#if ENHANCED_TOGGLE_FLOATING && !FLOATING_LAYOUT_FLOATS_WINDOWS
+  #undef FLOATING_LAYOUT_FLOATS_WINDOWS
+  #define FLOATING_LAYOUT_FLOATS_WINDOWS 1
+#endif
 
 /* macros */
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
@@ -124,6 +134,11 @@ struct Client {
 	Client *snext;
 	Monitor *mon;
 	Window win;
+#if INFINITE_TAGS
+  int saved_cx, saved_cy;
+  int saved_cw, saved_ch;
+  int was_on_canvas;
+#endif
 #if WINDOWMAP
   int ismapped;
 #endif
@@ -147,6 +162,13 @@ typedef struct {
 	void (*arrange)(Monitor *);
 } Layout;
 
+#if INFINITE_TAGS
+typedef struct {
+    int cx, cy;
+    int saved_cx, saved_cy;
+} CanvasOffset;
+#endif
+
 struct Monitor {
 	char ltsymbol[16];
 	float mfact;
@@ -169,6 +191,9 @@ struct Monitor {
 	Monitor *next;
 	Window barwin;
 	const Layout *lt[2];
+#if INFINITE_TAGS
+  CanvasOffset *canvas;
+#endif
 };
 
 typedef struct {
@@ -715,6 +740,14 @@ createmon(void)
 	m->lt[0] = &layouts[0];
 	m->lt[1] = &layouts[1 % LENGTH(layouts)];
 	strncpy(m->ltsymbol, layouts[0].symbol, sizeof m->ltsymbol);
+#if INFINITE_TAGS
+  m->canvas = ecalloc(LENGTH(tags), sizeof(CanvasOffset));
+  unsigned int i;
+  for (i = 0; i < LENGTH(tags); i++) {
+      m->canvas[i].cx = 0;
+      m->canvas[i].cy = 0;
+  }
+#endif
 	return m;
 }
 
@@ -815,6 +848,18 @@ drawbar(Monitor *m)
 #endif
 		x += w;
 	}
+#if INFINITE_TAGS && IT_SHOW_COORDINATES_IN_BAR
+  int tagidx = getcurrenttag(m);
+  char coords[64];
+  snprintf(coords, sizeof(coords), "x:%d y:%d", 
+          m->canvas[tagidx].cx / 10,
+          m->canvas[tagidx].cy / 10); // Delete 10 if you want to get the most accurate values
+  w = TEXTW(coords);
+  drw_setscheme(drw, scheme[SchemeNorm]);
+  drw_text(drw, x, 0, w, bh, lrpad / 2, coords, 0);
+  x += w;
+#endif
+
 	w = TEXTW(m->ltsymbol);
 	drw_setscheme(drw, scheme[SchemeNorm]);
 	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
@@ -954,6 +999,9 @@ focusstack(const Arg *arg)
 	}
 	if (c) {
 		focus(c);
+#if INFINITE_TAGS
+    centerwindow(NULL);
+#endif
 #if WARP_TO_CLIENT && WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_FOCUSSTACK
     warptoclient(c);
 #endif   
@@ -1236,7 +1284,7 @@ manage(Window w, XWindowAttributes *wa)
 	XMapWindow(dpy, c->win);
 	focus(NULL);
 #if WARP_TO_CLIENT && WARP_TO_CENTER_OF_NEW_WINDOW 
-    warptoclient(c);
+  warptoclient(c);
 #endif
 }
 
@@ -1752,18 +1800,38 @@ setfullscreen(Client *c, int fullscreen)
 void
 setlayout(const Arg *arg)
 {
-	if (!arg || !arg->v || arg->v != selmon->lt[selmon->sellt])
-		selmon->sellt ^= 1;
-	if (arg && arg->v)
-		selmon->lt[selmon->sellt] = (Layout *)arg->v;
-  strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol - 1);
-  selmon->ltsymbol[sizeof selmon->ltsymbol - 1] = '\0';
-	if (selmon->sel)
-		arrange(selmon);
-	else
-		drawbar(selmon);
-}
+#if INFINITE_TAGS
+    const Layout *old_layout = selmon->lt[selmon->sellt];
+#endif    
+    if (!arg || !arg->v || arg->v != selmon->lt[selmon->sellt])
+        selmon->sellt ^= 1;
+    if (arg && arg->v)
+        selmon->lt[selmon->sellt] = (Layout *)arg->v;
+#if INFINITE_TAGS
+    const Layout *new_layout = selmon->lt[selmon->sellt];
+#endif
+#if INFINITE_TAGS
+    if (old_layout->arrange == NULL && new_layout->arrange != NULL) {
+        save_canvas_positions(selmon);
+        homecanvas(NULL);  
+        Client *c;
+        for (c = selmon->clients; c; c = c->next)
+            if (!c->isfixed) c->isfloating = 0;
+    }
+    
+    if (new_layout->arrange == NULL) {
+        restore_canvas_positions(selmon);
+        
+        Client *c;
+        for (c = selmon->clients; c; c = c->next)
+            c->isfloating = 1;
+    }
+#endif
 
+    strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol - 1);
+    selmon->ltsymbol[sizeof selmon->ltsymbol - 1] = '\0';
+    arrange(selmon);
+}
 /* arg > 1.0 will set mfact absolutely */
 void
 setmfact(const Arg *arg)
@@ -2400,36 +2468,82 @@ updatewmhints(Client *c)
 void
 view(const Arg *arg)
 {
-	if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
-	  selmon->seltags ^= 1; /* toggle sel tagset */
-  else {
-    selmon->seltags ^= 1; /* toggle sel tagset */
-    if (arg->ui & TAGMASK)
-		  selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
-  }
-	focus(NULL);
-	arrange(selmon);
-#if EWMH_TAGS
-  updatecurrentdesktop();
+#if INFINITE_TAGS
+    if (selmon->lt[selmon->sellt]->arrange == NULL) {
+        save_canvas_positions(selmon);
+    }
 #endif
 
-}
-#else
-
-void
-view(const Arg *arg)
-{
     if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
-        return;
-    selmon->seltags ^= 1; /* toggle sel tagset */
-    if (arg->ui & TAGMASK)
-        selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+        selmon->seltags ^= 1;
+    else {
+        selmon->seltags ^= 1;
+        if (arg->ui & TAGMASK)
+            selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+    }
+
+#if INFINITE_TAGS
+    int newtag = getcurrenttag(selmon);
+    
+    if (selmon->lt[selmon->sellt]->arrange == NULL) {
+        restore_canvas_positions(selmon);
+        
+        Client *c;
+        for (c = selmon->clients; c; c = c->next)
+            if (c->tags & (1 << newtag))
+                c->isfloating = 1;
+    } else {
+        selmon->canvas[newtag].cx = 0;
+        selmon->canvas[newtag].cy = 0;
+    }
+#endif
+
     focus(NULL);
     arrange(selmon);
 #if EWMH_TAGS
     updatecurrentdesktop();
 #endif
 }
+
+#else
+
+void
+view(const Arg *arg)
+{
+#if INFINITE_TAGS
+    if (selmon->lt[selmon->sellt]->arrange == NULL)
+        save_canvas_positions(selmon);
+#endif
+
+    if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
+        return;
+    selmon->seltags ^= 1;
+    if (arg->ui & TAGMASK)
+        selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+
+#if INFINITE_TAGS
+    int newtag = getcurrenttag(selmon);
+
+    if (selmon->lt[selmon->sellt]->arrange != NULL) {
+        selmon->canvas[newtag].cx = 0;
+        selmon->canvas[newtag].cy = 0;
+    } else {
+        restore_canvas_positions(selmon);
+
+        Client *c;
+        for (c = selmon->clients; c; c = c->next)
+            if (ISVISIBLE(c))
+                c->isfloating = 1;
+    }
+#endif
+
+    focus(NULL);
+    arrange(selmon);
+#if EWMH_TAGS
+    updatecurrentdesktop();
+#endif
+}
+
 #endif
 
 Client *

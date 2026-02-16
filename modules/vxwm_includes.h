@@ -27,3 +27,11 @@
 #if WINDOWMAP
 #include "windowmap/windowmap.h"
 #endif
+
+#if INFINITE_TAGS
+#include "infinitetags/infinitetags.h"
+#endif
+
+#if MOVE_RESIZE_WITH_KEYBOARD
+#include "moveresizekbd/moveresizekbd.h"
+#endif

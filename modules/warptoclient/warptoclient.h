@@ -1,1 +1,1 @@
-void warptoclient(Client *c);
+static void warptoclient(Client *c);

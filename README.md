@@ -6,6 +6,23 @@ It has some patches for dwm pre installed that can be enabled/disabled by switch
 It also has some unique features like 8 sided resize, enhanced toggle floating, warp cursor and more! (They also can be toggled)
 Check modules.def.h for full list of features.
 
+But the main feature of vxwm, is infinite tags.
+ 
+Most tiling window managers (like the default dwm) treat your screen like a slide-projector. You click a button, and the current "slide" is swapped for another. If an window is off-screen, it doesn't exist.
+
+With infinite tags enabled, vxwm treats your screen like a magnifying glass over a giant wooden desk.
+
+The Canvas is Infinite
+Your windows aren't "on" tags. They are placed on a massive, invisible surface. Your monitor is just a small window through which you look at that surface.
+
+Move the View, Not Just the Windows
+Instead of managing "layers" or "hidden states," you manage position.
+
+Want more space? Slide the view over.
+Can't find a window? Swicth your focus to it, and the world slides until that window is right under your nose.
+Lost? Hit the "homecanvas" keybind to snap your view back to the start.
+Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, and is very easy to use.
+
 ## Requirements
 
 In order to build vxwm you need the Xlib header files.
@@ -72,3 +89,4 @@ match your preferences and (re)compiling the source code.
 ## Acknowledgements
 
 vxwm was made in solo by a linux enthusiast wh1tepearl, many thanks to suckless.org and the [dwm] developers for making dwm in first place.
+Thanks hevel wayland compositor developers for insipiration of infinite tags.

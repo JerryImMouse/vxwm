@@ -59,6 +59,15 @@ static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 static const char *occupiedtags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 #endif
 
+#if INFINITE_TAGS
+#define MOVE_CANVAS_STEP 120 /* Defines how many pixel will be jumped when using movecanvas function */
+#endif
+
+#if MOVE_RESIZE_WITH_KEYBOARD
+#define MOVE_WITH_KEYBOARD_STEP 50 /* Defines by how many pixels windows will be resized with keyboard */
+#define RESIZE_WITH_KEYBOARD_STEP 50 /* Defines by how many pixels windows will be resized with keyboard */
+#endif
+
 static const Rule rules[] = {
 	/* xprop(1):
 	 *	WM_CLASS(STRING) = instance, class
@@ -155,12 +164,34 @@ static const Key keys[] = {
   { MODKEY,                       XK_equal,  setgaps,        {.i = +1 } },
   { MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
 #endif
+#if MOVE_RESIZE_WITH_KEYBOARD
+{ MODKEY,					XK_Down,	moveresize,		{.v = (int []){ 0, MOVE_WITH_KEYBOARD_STEP, 0, 0 }}},
+{ MODKEY,					XK_Up,		moveresize,		{.v = (int []){ 0, -MOVE_WITH_KEYBOARD_STEP, 0, 0 }}},
+{ MODKEY,					XK_Right,	moveresize,		{.v = (int []){ MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}},
+{ MODKEY,					XK_Left,	moveresize,		{.v = (int []){ -MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}},
+{ MODKEY|ControlMask,			XK_Down,	moveresize,		{.v = (int []){ 0, 0, 0, RESIZE_WITH_KEYBOARD_STEP }}},
+{ MODKEY|ControlMask,			XK_Up,		moveresize,		{.v = (int []){ 0, 0, 0, -RESIZE_WITH_KEYBOARD_STEP }}},
+{ MODKEY|ControlMask,			XK_Right,	moveresize,		{.v = (int []){ 0, 0, RESIZE_WITH_KEYBOARD_STEP, 0 }}},
+{ MODKEY|ControlMask,			XK_Left,	moveresize,		{.v = (int []){ 0, 0, -RESIZE_WITH_KEYBOARD_STEP, 0 }}},
+#endif
+#if INFINITE_TAGS
+  { MODKEY|ShiftMask,             XK_Left,   movecanvas,       {.i = 0} }, // Move your position to left
+  { MODKEY|ShiftMask,             XK_Right,  movecanvas,       {.i = 1} }, // Move your position to right
+  { MODKEY|ShiftMask,             XK_Up,     movecanvas,       {.i = 2} }, // Move your position up
+  { MODKEY|ShiftMask,             XK_Down,   movecanvas,       {.i = 3} }, // Move your position down
+  { MODKEY,                       XK_r,      homecanvas,       {0} },
+  { MODKEY|ShiftMask,             XK_d,      centerwindow,     {0} },
+#endif
 };
 
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static const Button buttons[] = {
 	/* click                event mask      button          function        argument */
+#if INFINITE_TAGS
+  { ClkRootWin,      MODKEY|ShiftMask,         Button1,        manuallymovecanvas,     {0} },
+  { ClkClientWin,    MODKEY|ShiftMask,         Button1,        manuallymovecanvas,     {0} },
+#endif
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },

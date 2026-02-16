@@ -2,13 +2,36 @@
 
 /* vxwm compile-time options */
 
+/* KILLER FEATURES */
+#define INFINITE_TAGS 1
+/* 
+Most tiling window managers (like the default dwm) treat your screen like a slide-projector. You click a button, and the current "slide" is swapped for another. If an window is off-screen, it doesn't exist.
+
+With infinite tags enabled, vxwm treats your screen like a magnifying glass over a giant wooden desk.
+
+1. The Canvas is Infinite
+Your windows aren't "on" tags. They are placed on a massive, invisible surface. Your monitor is just a small window through which you look at that surface.
+
+2. Move the View, Not Just the Windows
+Instead of managing "layers" or "hidden states," you manage position.
+
+Want more space? Slide the view over.
+Can't find a window? Swicth your focus to it, and the world slides until that window is right under your nose.
+Lost? Hit the "homecanvas" keybind to snap your view back to the start.
+Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, and is very easy to use.
+ 
+ */
+#define IT_SHOW_COORDINATES_IN_BAR 1 // Shows your coordinates in the bar.
+
+
+
 /* Move/Resize */
 #define BETTER_RESIZE 1 // Enables 8 sided window resize.
 #define BR_CHANGE_CURSOR 1 // When resizing windows while having BETTER_RESIZE set to 1, the cursor will change depending on from which side you are resizing.
 #define LOCK_MOVE_RESIZE_REFRESH_RATE 1 // Recomended to use on every pc, because cpu (software) rendered apps like ST will lagg when resizing even if you have a good pc.
 #define USE_RESIZECLIENT_FUNC 0 // Use resizeclient function of instead of resize function which ignores window's resize hints, not recommended.
 #define RESIZINIG_WINDOWS_IN_ALL_LAYOUTS_FLOATS_THEM 0 // yeah.
-
+#define MOVE_RESIZE_WITH_KEYBOARD 1 // Allows to move and resize windows with keyboard.
 
 /* Kind of eye candy */
 #define GAPS 0 // Gaps support.
@@ -54,21 +77,28 @@
 #define FULLSCREEN 0 // Support for toggling fullscreen.
 #define MOVE_IN_TILED 0 // Support for moving windows in tiled mode.
 #define EWMH_TAGS 0 // Support for EWMH tags, recommended if you want to use external bars with less pain
-#define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 0 //so, basically, it does what it says.
 
 
 
 /* Floating */
 /* Recomended to use with ALWAYS_CENTER_NEW_FLOATING_WINDOWS set to 1. */ 
 
+#define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 0 // so, basically, it does what it says.
+
 #define FLOATING_LAYOUT_FLOATS_WINDOWS 0 
 /* By default, in floating layout, windows appear to be floating, but, for dwm,
    they are not. Because of this, when switching to tiled layout after floating
    layout, windows will be tiled, enable this if you don't want that behaviour. */
 
-#define ENHANCED_TOGGLE_FLOATING 0
+#define ENHANCED_TOGGLE_FLOATING 0 
 /* Support for enhanced toggle floating, when toggling floating window will 
    resize to its natural size, and in floating layout, window will be tiled. 
-   REQUIRES "FLOATING_LAYOUT_FLOATS_WINDOWS" AND "RESIZINIG_WINDOWS_IN_ALL_LAYOUTS_FLOATS_THEM" SET TO 1 TO WORK PROPERLY. */
+   REQUIRES "FLOATING_LAYOUT_FLOATS_WINDOWS" SET TO 1 TO WORK PROPERLY. */
 
 #define RESTORE_SIZE_AND_POS_ETF 0 // Restore previous size and position of window when toggling floating 
+
+
+
+/* Dependency list */
+/* INFINITE_TAGS requires WINDOWMAP, please set WINDOWMAP to 1, if not, it will be automatically enabled.
+ * ENHANCED_TOGGLE_FLOATING requires FLOATING_LAYOUT_FLOATS_WINDOWS, please set FLOATING_LAYOUT_FLOATS_WINDOWS to 1, if not, it will be automatically enabled.  */
