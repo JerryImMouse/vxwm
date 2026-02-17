@@ -1850,6 +1850,9 @@ void
 setlayout(const Arg *arg)
 {
 #if INFINITE_TAGS
+    const Layout *temp_new_layout = (arg && arg->v) ? (Layout *)arg->v : selmon->lt[selmon->sellt ^ 1];
+    if (temp_new_layout == selmon->lt[selmon->sellt]) return;
+
     const Layout *old_layout = selmon->lt[selmon->sellt];
 #endif    
     if (!arg || !arg->v || arg->v != selmon->lt[selmon->sellt])
@@ -1858,8 +1861,7 @@ setlayout(const Arg *arg)
         selmon->lt[selmon->sellt] = (Layout *)arg->v;
 #if INFINITE_TAGS
     const Layout *new_layout = selmon->lt[selmon->sellt];
-#endif
-#if INFINITE_TAGS
+
     if (old_layout->arrange == NULL && new_layout->arrange != NULL) {
         save_canvas_positions(selmon);
         homecanvas(NULL);  
