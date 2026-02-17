@@ -28,7 +28,7 @@ moveresize(const Arg *arg)
     XEvent ev;
     Monitor *m = selmon;
     if(!(m->sel && arg && arg->v && m->sel->isfloating))
-      return;
+      if (selmon->lt[selmon->sellt]->arrange != NULL) return;
     if (selmon->lt[selmon->sellt]->arrange != NULL) {
       resize(m->sel, m->sel->x + ((int *)arg->v)[0],
 		    m->sel->y + ((int *)arg->v)[1],
