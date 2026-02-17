@@ -40,10 +40,10 @@ movecanvas(const Arg *arg)
 #endif
 
 	switch(arg->i) {
-		case 0: dx =  MOVE_CANVAS_STEP; break;
-		case 1: dx = -MOVE_CANVAS_STEP; break;
-		case 2: dy =  MOVE_CANVAS_STEP; break;
-		case 3: dy = -MOVE_CANVAS_STEP; break;
+    case 0: dx = -MOVE_CANVAS_STEP; break;
+		case 1: dx =  MOVE_CANVAS_STEP; break;
+    case 2: dy = -MOVE_CANVAS_STEP; break;
+		case 3: dy =  MOVE_CANVAS_STEP; break;
 	}
 
 	selmon->canvas[tagidx].cx -= dx;
@@ -52,8 +52,8 @@ movecanvas(const Arg *arg)
 	Client *c;
 	for (c = selmon->clients; c; c = c->next) {
 		if (ISVISIBLE(c)) {
-			c->x += dx;
-			c->y += dy;
+			c->x -= dx;
+			c->y -= dy;
 			XMoveWindow(dpy, c->win, c->x, c->y);
 		}
 	}
