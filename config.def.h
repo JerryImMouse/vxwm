@@ -175,11 +175,11 @@ static const Key keys[] = {
 { MODKEY|ControlMask,			XK_Left,	moveresize,		{.v = (int []){ 0, 0, -RESIZE_WITH_KEYBOARD_STEP, 0 }}},
 #endif
 #if INFINITE_TAGS
+  { MODKEY,                       XK_r,      homecanvas,       {0} }, // Return to x:0, y:0 position
   { MODKEY|ShiftMask,             XK_Left,   movecanvas,       {.i = 0} }, // Move your position to left
   { MODKEY|ShiftMask,             XK_Right,  movecanvas,       {.i = 1} }, // Move your position to right
   { MODKEY|ShiftMask,             XK_Up,     movecanvas,       {.i = 2} }, // Move your position up
   { MODKEY|ShiftMask,             XK_Down,   movecanvas,       {.i = 3} }, // Move your position down
-  { MODKEY,                       XK_r,      homecanvas,       {0} },
   { MODKEY|ShiftMask,             XK_d,      centerwindow,     {0} },
 #endif
 };
