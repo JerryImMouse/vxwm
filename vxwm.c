@@ -2086,11 +2086,30 @@ spawn(const Arg *arg)
 void
 tag(const Arg *arg)
 {
-	if (selmon->sel && arg->ui & TAGMASK) {
-		selmon->sel->tags = arg->ui & TAGMASK;
-		focus(NULL);
-		arrange(selmon);
-	}
+    if (selmon->sel && arg->ui & TAGMASK) {
+#if INFINITE_TAGS
+        Client *c = selmon->sel;
+        unsigned int target_tag_mask = arg->ui & TAGMASK;
+        int i;
+
+        for (i = 0; i < LENGTH(tags); i++) {
+            if (target_tag_mask & (1 << i)) {
+                
+                c->saved_cx = selmon->canvas[i].cx + (selmon->ww - WIDTH(c)) / 2;
+                c->saved_cy = selmon->canvas[i].cy + (selmon->wh - HEIGHT(c)) / 2;
+                c->saved_cw = c->w;
+                c->saved_ch = c->h;
+                c->was_on_canvas = 1;
+                
+                break;
+            }
+        }
+#endif
+
+        selmon->sel->tags = arg->ui & TAGMASK;
+        focus(NULL);
+        arrange(selmon);
+    }
 }
 
 void

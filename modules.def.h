@@ -70,6 +70,7 @@ Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, a
 #define WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_INCNMASTER 0 // Warps the cursor to center of the window that gets affected in use of incnmaster.
 #define WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_ENHANCED_TOGGLE_FLOATING 0 // Warps cursor to center of the window that was affected by using enhancedtogglefloating function.
 #define WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_FOCUSSTACK 0 // Warps cursor to center of the window that was focused by using focusstack function. 
+#define WARP_TO_CENTER_OF_WINDOW_MOVED_BY_KEYBOARD 0 // Warps cursor to center of the window that is moved by moveresize function. 
 
 
 
