@@ -89,6 +89,7 @@ vxwm was made in solo by a linux enthusiast wh1tepearl, many thanks to suckless.
 Thanks 5element developer and hevel wayland compositor developers for inspiration of infinite tags.
 
 Also try:
+
 hevel wayland compositor: https://git.sr.ht/~dlm/hevel
 
 5element: https://hg.sr.ht/~umix11/5element
