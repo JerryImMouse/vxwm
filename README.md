@@ -83,10 +83,11 @@ like this in your .xinitrc:
 The configuration of vxwm is done by editing config.h and modules.h to
 match your preferences and (re)compiling the source code.
 
-
-
-
 ## Acknowledgements
 
 vxwm was made in solo by a linux enthusiast wh1tepearl, many thanks to suckless.org and the [dwm] developers for making dwm in first place.
-Thanks hevel wayland compositor developers for insipiration of infinite tags.
+Thanks 5element developer and hevel wayland compositor developers for inspiration of infinite tags.
+
+Also try:
+hevel wayland compositor: https://git.sr.ht/~dlm/hevel
+5element: https://hg.sr.ht/~umix11/5element

@@ -7,7 +7,7 @@ moveresize(const Arg *arg)
 
 	if(!(m->sel && arg && arg->v && m->sel->isfloating))
 		return;
-
+  XRaiseWindow(dpy, m->sel->win);
 	resize(m->sel, m->sel->x + ((int *)arg->v)[0],
 		m->sel->y + ((int *)arg->v)[1],
 		m->sel->w + ((int *)arg->v)[2],
@@ -29,6 +29,7 @@ moveresize(const Arg *arg)
     Monitor *m = selmon;
     if(!(m->sel && arg && arg->v && m->sel->isfloating))
       if (selmon->lt[selmon->sellt]->arrange != NULL) return;
+    XRaiseWindow(dpy, m->sel->win);
     if (selmon->lt[selmon->sellt]->arrange != NULL) {
       resize(m->sel, m->sel->x + ((int *)arg->v)[0],
 		    m->sel->y + ((int *)arg->v)[1],
