@@ -1,4 +1,4 @@
-# dwm - dynamic window manager
+# vxwm - Versatile X Window Manager
 # See LICENSE file for copyright and license details.
 
 include config.mk
