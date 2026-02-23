@@ -188,6 +188,12 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_Up,     focusdir,       {.i = 2 } }, // up
 	{ MODKEY,                       XK_Down,   focusdir,       {.i = 3 } }, // down
 #endif
+#if DIRECTIONAL_MOVE
+  { Mod1Mask, XK_Left,  movedir, {.i = 0} },
+  { Mod1Mask, XK_Right, movedir, {.i = 1} },
+  { Mod1Mask, XK_Up,    movedir, {.i = 2} },
+  { Mod1Mask, XK_Down,  movedir, {.i = 3} },
+#endif
 };
 
 /* button definitions */

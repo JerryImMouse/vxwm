@@ -43,3 +43,7 @@
 #if DIRECTIONAL_FOCUS
 #include "directionalfocus/directionalfocus.c"
 #endif
+
+#if DIRECTIONAL_MOVE
+#include "directionalmove/directionalmove.c"
+#endif
