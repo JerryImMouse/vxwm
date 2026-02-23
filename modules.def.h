@@ -78,6 +78,7 @@ Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, a
 #define FULLSCREEN 0 // Support for toggling fullscreen.
 #define MOVE_IN_TILED 0 // Support for moving windows in tiled mode.
 #define EWMH_TAGS 0 // Support for EWMH tags, recommended if you want to use external bars with less pain
+#define DIRECTIONAL_FOCUS 0 // yeah.
 
 
 

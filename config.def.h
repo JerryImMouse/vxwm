@@ -165,10 +165,10 @@ static const Key keys[] = {
   { MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
 #endif
 #if MOVE_RESIZE_WITH_KEYBOARD
-{ MODKEY,					XK_Down,	moveresize,		{.v = (int []){ 0, MOVE_WITH_KEYBOARD_STEP, 0, 0 }}},
-{ MODKEY,					XK_Up,		moveresize,		{.v = (int []){ 0, -MOVE_WITH_KEYBOARD_STEP, 0, 0 }}},
-{ MODKEY,					XK_Right,	moveresize,		{.v = (int []){ MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}},
-{ MODKEY,					XK_Left,	moveresize,		{.v = (int []){ -MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}},
+{ MODKEY|Mod1Mask,					XK_Down,	moveresize,		{.v = (int []){ 0, MOVE_WITH_KEYBOARD_STEP, 0, 0 }}},
+{ MODKEY|Mod1Mask,					XK_Up,		moveresize,		{.v = (int []){ 0, -MOVE_WITH_KEYBOARD_STEP, 0, 0 }}},
+{ MODKEY|Mod1Mask,					XK_Right,	moveresize,		{.v = (int []){ MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}},
+{ MODKEY|Mod1Mask,					XK_Left,	moveresize,		{.v = (int []){ -MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}},
 { MODKEY|ControlMask,			XK_Down,	moveresize,		{.v = (int []){ 0, 0, 0, RESIZE_WITH_KEYBOARD_STEP }}},
 { MODKEY|ControlMask,			XK_Up,		moveresize,		{.v = (int []){ 0, 0, 0, -RESIZE_WITH_KEYBOARD_STEP }}},
 { MODKEY|ControlMask,			XK_Right,	moveresize,		{.v = (int []){ 0, 0, RESIZE_WITH_KEYBOARD_STEP, 0 }}},
@@ -181,6 +181,12 @@ static const Key keys[] = {
   { MODKEY|ShiftMask,             XK_Up,     movecanvas,       {.i = 2} }, // Move your position up
   { MODKEY|ShiftMask,             XK_Down,   movecanvas,       {.i = 3} }, // Move your position down
   { MODKEY|ShiftMask,             XK_d,      centerwindow,     {0} },
+#endif
+#if DIRECTIONAL_FOCUS
+	{ MODKEY,                       XK_Left,   focusdir,       {.i = 0 } }, // left
+	{ MODKEY,                       XK_Right,  focusdir,       {.i = 1 } }, // right
+	{ MODKEY,                       XK_Up,     focusdir,       {.i = 2 } }, // up
+	{ MODKEY,                       XK_Down,   focusdir,       {.i = 3 } }, // down
 #endif
 };
 

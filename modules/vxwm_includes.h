@@ -35,3 +35,7 @@
 #if MOVE_RESIZE_WITH_KEYBOARD
 #include "moveresizekbd/moveresizekbd.h"
 #endif
+
+#if DIRECTIONAL_FOCUS
+#include "directionalfocus/directionalfocus.h"
+#endif
