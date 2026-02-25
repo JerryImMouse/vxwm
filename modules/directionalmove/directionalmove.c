@@ -1,6 +1,7 @@
 void
 movedir(const Arg *arg)
 {
+        if (selmon->lt[selmon->sellt]->arrange != tile) return;
         Client *s = selmon->sel, *f = NULL, *c, *next;
         if (!s)
                 return;

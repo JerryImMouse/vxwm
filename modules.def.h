@@ -79,7 +79,18 @@ Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, a
 #define MOVE_IN_TILED 0 // Support for moving windows in tiled mode.
 #define EWMH_TAGS 0 // Support for EWMH tags, recommended if you want to use external bars with less pain
 #define DIRECTIONAL_FOCUS 0 // yeah.
-#define DIRECTIONAL_MOVE 0 // yeah.
+#define DIRECTIONAL_MOVE 0 
+/* Makes moving windows in tiled layout possible with keyboard and it is directional,
+   bind for move is in #if MOVE_RESIZE_WITH_KEYBOARD section which makes it depending on 
+   MOVE_RESIZE_WITH_KEYBOARD at the first sight but, it doesn't. You can bind the movedir
+   function manually which makes it independent like this:
+#if DIRECTIONAL_MOVE
+  { MODKEY|ALTERNATE_MODKEY, XK_Left,  movedir, {.i = 0} }, // Left
+  { MODKEY|ALTERNATE_MODKEY, XK_Right, movedir, {.i = 1} }, // Right
+  { MODKEY|ALTERNATE_MODKEY, XK_Up,    movedir, {.i = 2} }, // Up
+  { MODKEY|ALTERNATE_MODKEY, XK_Down,  movedir, {.i = 3} }, // Down
+#endif
+*/
 
 
 

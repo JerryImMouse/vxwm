@@ -851,7 +851,7 @@ drawbar(Monitor *m)
 #if INFINITE_TAGS && IT_SHOW_COORDINATES_IN_BAR
   int tagidx = getcurrenttag(m);
   char coords[64];
-  snprintf(coords, sizeof(coords), "x:%d y:%d", 
+  snprintf(coords, sizeof(coords), "[x%d y%d]", 
           m->canvas[tagidx].cx / 10,
           m->canvas[tagidx].cy / 10); // Delete 10 if you want to get the most accurate values
   w = TEXTW(coords);

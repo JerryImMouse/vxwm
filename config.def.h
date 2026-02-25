@@ -95,6 +95,8 @@ static const Layout layouts[] = {
 
 /* key definitions */
 #define MODKEY Mod4Mask
+#define ALTERNATE_MODKEY Mod1Mask
+
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -165,14 +167,14 @@ static const Key keys[] = {
   { MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
 #endif
 #if MOVE_RESIZE_WITH_KEYBOARD
-{ MODKEY|Mod1Mask,					XK_Down,	moveresize,		{.v = (int []){ 0, MOVE_WITH_KEYBOARD_STEP, 0, 0 }}},
-{ MODKEY|Mod1Mask,					XK_Up,		moveresize,		{.v = (int []){ 0, -MOVE_WITH_KEYBOARD_STEP, 0, 0 }}},
-{ MODKEY|Mod1Mask,					XK_Right,	moveresize,		{.v = (int []){ MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}},
-{ MODKEY|Mod1Mask,					XK_Left,	moveresize,		{.v = (int []){ -MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}},
-{ MODKEY|ControlMask,			XK_Down,	moveresize,		{.v = (int []){ 0, 0, 0, RESIZE_WITH_KEYBOARD_STEP }}},
-{ MODKEY|ControlMask,			XK_Up,		moveresize,		{.v = (int []){ 0, 0, 0, -RESIZE_WITH_KEYBOARD_STEP }}},
-{ MODKEY|ControlMask,			XK_Right,	moveresize,		{.v = (int []){ 0, 0, RESIZE_WITH_KEYBOARD_STEP, 0 }}},
-{ MODKEY|ControlMask,			XK_Left,	moveresize,		{.v = (int []){ 0, 0, -RESIZE_WITH_KEYBOARD_STEP, 0 }}},
+  { MODKEY,					              XK_Down,	moveresize,		{.v = (int []){ 0, MOVE_WITH_KEYBOARD_STEP, 0, 0 }}}, // Move window to down
+  { MODKEY,					              XK_Up,		moveresize,		{.v = (int []){ 0, -MOVE_WITH_KEYBOARD_STEP, 0, 0 }}}, // Move window to up
+  { MODKEY,					              XK_Right,	moveresize,		{.v = (int []){ MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}}, // Move window to right
+  { MODKEY,					              XK_Left,	moveresize,		{.v = (int []){ -MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}}, // Move window to left
+  { MODKEY|ControlMask,			      XK_Down,	moveresize,		{.v = (int []){ 0, 0, 0, RESIZE_WITH_KEYBOARD_STEP }}}, // Resize window
+  { MODKEY|ControlMask,			      XK_Up,		moveresize,		{.v = (int []){ 0, 0, 0, -RESIZE_WITH_KEYBOARD_STEP }}}, // Resize window
+  { MODKEY|ControlMask,			      XK_Right,	moveresize,		{.v = (int []){ 0, 0, RESIZE_WITH_KEYBOARD_STEP, 0 }}}, // Resize window
+  { MODKEY|ControlMask,			      XK_Left,	moveresize,		{.v = (int []){ 0, 0, -RESIZE_WITH_KEYBOARD_STEP, 0 }}}, // Resize window
 #endif
 #if INFINITE_TAGS
   { MODKEY,                       XK_r,      homecanvas,       {0} }, // Return to x:0, y:0 position
@@ -183,16 +185,10 @@ static const Key keys[] = {
   { MODKEY|ShiftMask,             XK_d,      centerwindow,     {0} },
 #endif
 #if DIRECTIONAL_FOCUS
-	{ MODKEY,                       XK_Left,   focusdir,       {.i = 0 } }, // left
-	{ MODKEY,                       XK_Right,  focusdir,       {.i = 1 } }, // right
-	{ MODKEY,                       XK_Up,     focusdir,       {.i = 2 } }, // up
-	{ MODKEY,                       XK_Down,   focusdir,       {.i = 3 } }, // down
-#endif
-#if DIRECTIONAL_MOVE
-  { Mod1Mask, XK_Left,  movedir, {.i = 0} },
-  { Mod1Mask, XK_Right, movedir, {.i = 1} },
-  { Mod1Mask, XK_Up,    movedir, {.i = 2} },
-  { Mod1Mask, XK_Down,  movedir, {.i = 3} },
+	{ ALTERNATE_MODKEY,             XK_Left,   focusdir,       {.i = 0 } }, // left
+	{ ALTERNATE_MODKEY,             XK_Right,  focusdir,       {.i = 1 } }, // right
+	{ ALTERNATE_MODKEY,             XK_Up,     focusdir,       {.i = 2 } }, // up
+	{ ALTERNATE_MODKEY,             XK_Down,   focusdir,       {.i = 3 } }, // down
 #endif
 };
 
