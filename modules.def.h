@@ -34,15 +34,15 @@ Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, a
 #define MOVE_RESIZE_WITH_KEYBOARD 1 // Allows to move and resize windows with keyboard.
 
 /* Kind of eye candy */
-#define GAPS 0 // Gaps support.
-#define XRDB 0 // Xrdb support.
+#define GAPS 1 // Gaps support.
+#define XRDB 1 // Xrdb support.
 
 
 
 /* Tagging */
-#define TAG_TO_TAG 0 // If you switch to tag where you already are, it'll switch to previous tag.
+#define TAG_TO_TAG 1 // If you switch to tag where you already are, it'll switch to previous tag.
 #define SLOWER_TAGS_ANIMATION 0 // This slows down tags animation speed, which results in smoother tags animations (requires picom to see any difference).
-#define WINDOWMAP 0
+#define WINDOWMAP 1
 /* This makes the windows get mapped or unmapped in X11. This results in certain
    behaviour being enabled, some examples are: fix issues with some applications 
    losing input forever after a tag change or when you use a compositor like picom, 
@@ -63,10 +63,10 @@ Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, a
 
 
 /* Warp to client */
-#define WARP_TO_CLIENT 0 // Includes the warp to client function needed for all options below.
-#define WARP_TO_CENTER_OF_NEW_WINDOW 0 // Warps the cursor to center of the new window.
+#define WARP_TO_CLIENT 1 // Includes the warp to client function needed for all options below.
+#define WARP_TO_CENTER_OF_NEW_WINDOW 1 // Warps the cursor to center of the new window.
 #define WARP_TO_CENTER_OF_PREVIOUS_WINDOW 0 // Warps cursor to center of the previous window after closing a window.
-#define WARP_TO_CENTER_OF_ZOOMED_WINDOW 0 // Warps cursor to center of the window that was zoomed using zoom function.
+#define WARP_TO_CENTER_OF_ZOOMED_WINDOW 1 // Warps cursor to center of the window that was zoomed using zoom function.
 #define WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_INCNMASTER 0 // Warps the cursor to center of the window that gets affected in use of incnmaster.
 #define WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_ENHANCED_TOGGLE_FLOATING 0 // Warps cursor to center of the window that was affected by using enhancedtogglefloating function.
 #define WARP_TO_CENTER_OF_WINDOW_AFFECTED_BY_FOCUSSTACK 0 // Warps cursor to center of the window that was focused by using focusstack function. 
@@ -75,9 +75,9 @@ Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, a
 
 
 /* Misc */
-#define FULLSCREEN 0 // Support for toggling fullscreen.
+#define FULLSCREEN 1 // Support for toggling fullscreen.
 #define MOVE_IN_TILED 0 // Support for moving windows in tiled mode.
-#define EWMH_TAGS 0 // Support for EWMH tags, recommended if you want to use external bars with less pain
+#define EWMH_TAGS 1 // Support for EWMH tags, recommended if you want to use external bars with less pain
 #define DIRECTIONAL_FOCUS 0 // yeah.
 #define DIRECTIONAL_MOVE 0 
 /* Makes moving windows in tiled layout possible with keyboard and it is directional,
@@ -97,19 +97,19 @@ Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, a
 /* Floating */
 /* Recomended to use with ALWAYS_CENTER_NEW_FLOATING_WINDOWS set to 1. */ 
 
-#define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 0 // so, basically, it does what it says.
+#define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 1 // so, basically, it does what it says.
 
-#define FLOATING_LAYOUT_FLOATS_WINDOWS 0 
+#define FLOATING_LAYOUT_FLOATS_WINDOWS 1 
 /* By default, in floating layout, windows appear to be floating, but, for dwm,
    they are not. Because of this, when switching to tiled layout after floating
    layout, windows will be tiled, enable this if you don't want that behaviour. */
 
-#define ENHANCED_TOGGLE_FLOATING 0 
+#define ENHANCED_TOGGLE_FLOATING 1 
 /* Support for enhanced toggle floating, when toggling floating window will 
    resize to its natural size, and in floating layout, window will be tiled. 
    REQUIRES "FLOATING_LAYOUT_FLOATS_WINDOWS" SET TO 1 TO WORK PROPERLY. */
 
-#define RESTORE_SIZE_AND_POS_ETF 0 // Restore previous size and position of window when toggling floating 
+#define RESTORE_SIZE_AND_POS_ETF 1 // Restore previous size and position of window when toggling floating 
 
 
 

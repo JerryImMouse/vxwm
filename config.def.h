@@ -6,7 +6,7 @@
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
+static const int topbar             = 0;        /* 0 means bottom bar */
 static const char *fonts[]          = { "monospace:size=10" };
 static const char dmenufont[]       = "monospace:size=10";
 
@@ -84,7 +84,7 @@ static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 #if LOCK_MOVE_RESIZE_REFRESH_RATE
-static const int refreshrate = 120;  /* refresh rate (per second) for client move/resize, set it to your monitor refresh rate or double of that*/
+static const int refreshrate = 144;  /* refresh rate (per second) for client move/resize, set it to your monitor refresh rate or double of that*/
 #endif //LOCK_MOVE_RESIZE_REFRESH_RATE
 static const Layout layouts[] = {
 	/* symbol     arrange function */
@@ -115,27 +115,31 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont,
 static const char *dmenucmd[] = { "dmenu_run", "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbordercolor, "-sf", selfgcolor, NULL };
 #endif
 
-static const char *termcmd[]  = { "st", NULL };
+static const char *roficmd[] = { "rofi", "-show", "drun", "-icon-theme", "Papirus", "-show-icons", "-font", "JetBrains Mono Nerd Font", NULL };
+static const char *termcmd[]  = { "kitty", NULL };
+static const char *firefoxcmd[]  = { "firefox", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-  { MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,                       XK_b,      togglebar,      {0} },
+	{ MODKEY|ShiftMask,                       XK_p,      spawn,          {.v = roficmd } },
+    { MODKEY,                       XK_Return, spawn,          {.v = termcmd    } },
+    { MODKEY,                       XK_b,      spawn,          {.v = firefoxcmd } },
+	//{ MODKEY|ControlMask,           XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+	//{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{ MODKEY,                       XK_Return, zoom,           {0} },
+	{ MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_0,      view,           {0} },
-	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
+	{ MODKEY,                       XK_q,      killclient,     {0} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
-	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} }, //default toggle floating bind.
+	{ MODKEY|ShiftMask,             XK_s,      togglefloating, {0} }, //default toggle floating bind.
 	{ MODKEY,                       XK_Tab,    view,           {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
 	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
@@ -151,15 +155,15 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_7,                      6)
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
-	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+	{ MODKEY|ShiftMask,             XK_m,      quit,           {0} },
 #if XRDB
-  { MODKEY,                       XK_F5,     xrdb,           {.v = NULL } },
+  { MODKEY,                         XK_F5,     xrdb,           {.v = NULL } },
 #endif
 #if FULLSCREEN
-  { MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
+  { MODKEY|ShiftMask,               XK_f,      togglefullscr,  {0} },
 #endif
 #if ENHANCED_TOGGLE_FLOATING
-  { MODKEY,                       XK_q,      enhancedtogglefloating, {0} }, //enhanced toggle floating bind.
+  { MODKEY|ControlMask,             XK_k,      enhancedtogglefloating, {0} }, //enhanced toggle floating bind.
 #endif
 #if GAPS
   { MODKEY,                       XK_minus,  setgaps,        {.i = -1 } },
@@ -167,10 +171,10 @@ static const Key keys[] = {
   { MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
 #endif
 #if MOVE_RESIZE_WITH_KEYBOARD
-  { MODKEY,					              XK_Down,	moveresize,		{.v = (int []){ 0, MOVE_WITH_KEYBOARD_STEP, 0, 0 }}}, // Move window to down
-  { MODKEY,					              XK_Up,		moveresize,		{.v = (int []){ 0, -MOVE_WITH_KEYBOARD_STEP, 0, 0 }}}, // Move window to up
-  { MODKEY,					              XK_Right,	moveresize,		{.v = (int []){ MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}}, // Move window to right
-  { MODKEY,					              XK_Left,	moveresize,		{.v = (int []){ -MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}}, // Move window to left
+  { MODKEY,					          XK_Down,	moveresize,		{.v = (int []){ 0, MOVE_WITH_KEYBOARD_STEP, 0, 0 }}}, // Move window to down
+  { MODKEY,					          XK_Up,		moveresize,		{.v = (int []){ 0, -MOVE_WITH_KEYBOARD_STEP, 0, 0 }}}, // Move window to up
+  { MODKEY,					          XK_Right,	moveresize,		{.v = (int []){ MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}}, // Move window to right
+  { MODKEY,					          XK_Left,	moveresize,		{.v = (int []){ -MOVE_WITH_KEYBOARD_STEP, 0, 0, 0 }}}, // Move window to left
   { MODKEY|ControlMask,			      XK_Down,	moveresize,		{.v = (int []){ 0, 0, 0, RESIZE_WITH_KEYBOARD_STEP }}}, // Resize window
   { MODKEY|ControlMask,			      XK_Up,		moveresize,		{.v = (int []){ 0, 0, 0, -RESIZE_WITH_KEYBOARD_STEP }}}, // Resize window
   { MODKEY|ControlMask,			      XK_Right,	moveresize,		{.v = (int []){ 0, 0, RESIZE_WITH_KEYBOARD_STEP, 0 }}}, // Resize window
@@ -183,6 +187,10 @@ static const Key keys[] = {
   { MODKEY|ShiftMask,             XK_Up,     movecanvas,       {.i = 2} }, // Move your position up
   { MODKEY|ShiftMask,             XK_Down,   movecanvas,       {.i = 3} }, // Move your position down
   { MODKEY|ShiftMask,             XK_d,      centerwindow,     {0} },
+  { MODKEY,                       XK_d,      maximizewindow,     {0} },
+#endif
+#if OVERVIEW
+  { MODKEY,                       XK_o,      toggleoverview,   {0} }, // Bird's-eye view of all canvas windows
 #endif
 #if DIRECTIONAL_FOCUS
 	{ ALTERNATE_MODKEY,             XK_Left,   focusdir,       {.i = 0 } }, // left
