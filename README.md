@@ -1,5 +1,10 @@
 # vxwm - Versatile X Window Manager for x11 forked from dwm
 
+> [!WARNING]
+> This is a **personal fork** of [vxwm](https://codeberg.org/wh1tepearl/vxwm) by wh1tepearl.
+> It contains my own patches and modifications that may be unstable or opinionated.
+> For the original, stable version please visit the link above.
+
 # Features
 vxwm is dwm on steroids, it can be as lightweight as you want.
 It has some patches for dwm pre installed that can be enabled/disabled by switching 0 to 1 or vice versa. (like in dwm-flexipatch)
