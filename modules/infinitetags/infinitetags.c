@@ -202,3 +202,27 @@ centerwindow(const Arg *arg)
 
     drawbar(m);
 }
+
+// VXWM_MOD [2026-02-28] MAXIMIZE - added maximizewindow() function, I just wanted this thing badly
+void
+maximizewindow(const Arg *arg)
+{
+    Client *c = (arg && arg->v) ? (Client *)arg->v : selmon->sel;
+
+    if (!c || !c->mon || c->mon->lt[c->mon->sellt]->arrange != NULL)
+        return;
+
+    Monitor *m = c->mon;
+    int tagidx = getcurrenttag(m);
+
+    c->isfloating = 1;
+    c->w = m->ww - 2 * c->bw;
+    c->h = m->wh - 2 * c->bw;
+    c->x = m->wx;
+    c->y = m->wy;
+
+    XMoveResizeWindow(dpy, c->win, c->x, c->y, c->w, c->h);
+    configure(c);
+    drawbar(m);
+    XSync(dpy, False);
+}

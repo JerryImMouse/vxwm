@@ -5,3 +5,6 @@ static int getcurrenttag(Monitor *m);
 static void save_canvas_positions(Monitor *m);
 static void restore_canvas_positions(Monitor *m);
 static void centerwindow(const Arg *arg);
+
+// VXWM_MOD [2026-02-28] MAXIMIZE - added maximizewindow() function, I just wanted this thing badly
+static void maximizewindow(const Arg *arg);
