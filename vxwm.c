@@ -2706,7 +2706,7 @@ main(int argc, char *argv[])
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("vxwm - "VERSION);
   if (argc == 2 && !strcmp("-srcdir", argv[1]))
-    die("vxwm was compiled from - "SRCDIR);
+    die(SRCDIR);
 	else if (argc != 1)
 		die("usage: vxwm [-v] [-srcdir]");
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
