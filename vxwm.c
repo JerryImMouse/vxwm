@@ -98,7 +98,7 @@ enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
 #if !EWMH_TAGS
        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
 #else //EWMH_TAGS 
-       NetWMWindowTypeDialog, NetClientList, NetDesktopNames, NetDesktopViewport, NetNumberOfDesktops, NetCurrentDesktop, NetLast }; /* EWMH atoms */
+       NetWMWindowTypeDialog, NetClientList, NetDesktopNames, NetDesktopViewport, NetNumberOfDesktops, NetCurrentDesktop, NetDesktopNum, NetLast }; /* EWMH atoms */
 #endif
 enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
@@ -1283,6 +1283,9 @@ manage(Window w, XWindowAttributes *wa)
 		XRaiseWindow(dpy, c->win);
 	attach(c);
 	attachstack(c);
+	#if EWMH_TAGS
+	updatewmdesktop(c);
+	#endif
 	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
 		(unsigned char *) &(c->win), 1);
 	XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
@@ -1780,6 +1783,9 @@ sendmon(Client *c, Monitor *m)
 	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
 	attach(c);
 	attachstack(c);
+	#if EWMH_TAGS
+	updatewmdesktop(c);
+	#endif
 	focus(NULL);
 	arrange(NULL);
 }
@@ -1964,6 +1970,7 @@ setup(void)
 	netatom[NetNumberOfDesktops] = XInternAtom(dpy, "_NET_NUMBER_OF_DESKTOPS", False);
 	netatom[NetCurrentDesktop] = XInternAtom(dpy, "_NET_CURRENT_DESKTOP", False);
 	netatom[NetDesktopNames] = XInternAtom(dpy, "_NET_DESKTOP_NAMES", False);
+	netatom[NetDesktopNum] = XInternAtom(dpy, "_NET_WM_DESKTOP", False);
 #endif
 	/* init cursors */
 	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
@@ -2119,6 +2126,9 @@ tag(const Arg *arg)
 #endif
 
         selmon->sel->tags = arg->ui & TAGMASK;
+		#if EWMH_TAGS
+		updatewmdesktop(selmon->sel);
+		#endif
         focus(NULL);
         arrange(selmon);
     }
@@ -2214,6 +2224,9 @@ toggletag(const Arg *arg)
 	newtags = selmon->sel->tags ^ (arg->ui & TAGMASK);
 	if (newtags) {
 		selmon->sel->tags = newtags;
+		#if EWMH_TAGS
+		updatewmdesktop(selmon->sel);
+		#endif
 		focus(NULL);
 		arrange(selmon);
 	}
