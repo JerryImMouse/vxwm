@@ -31,6 +31,8 @@ movecanvas(const Arg *arg)
 {
 	if (selmon->lt[selmon->sellt]->arrange != NULL)
 		return;
+  if (selmon->sel && selmon->sel->isfullscreen)
+    return;
 
 	int tagidx = getcurrenttag(selmon);
 	int dx = 0, dy = 0;
@@ -64,7 +66,9 @@ movecanvas(const Arg *arg)
 void
 manuallymovecanvas(const Arg *arg) {
     if (selmon->lt[selmon->sellt]->arrange != NULL)
-        return;
+      return;
+    if (selmon->sel && selmon->sel->isfullscreen)
+      return;
     int start_x, start_y;
     Window dummy;
     int di;
@@ -73,8 +77,6 @@ manuallymovecanvas(const Arg *arg) {
 #if LOCK_MOVE_RESIZE_REFRESH_RATE
     Time lasttime = 0;
 #endif
-    if (selmon->sel && selmon->sel->isfullscreen)
-        return;
 
     if (!XQueryPointer(dpy, root, &dummy, &dummy, &start_x, &start_y, &di, &di, &dui))
         return;
