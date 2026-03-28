@@ -2,7 +2,7 @@
 This wm is forked from dwm 6.7 (but keeps up with all dwm's updates), thanks suckless for their incredible work on dwm!
 Infinite tags module is heavily inspired from 5element which is inspired from the hevel wayland compositor.
 
-vxwm 2.1 // by solyn (wh1tepearl's child)
+vxwm 2.2 // by wh1tepearl
 
 */
 
