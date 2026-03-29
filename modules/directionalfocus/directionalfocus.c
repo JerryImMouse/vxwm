@@ -59,38 +59,38 @@ focusdir(const Arg *arg)
 				break;
 			}
 
-			client_score = axial + (lateral * lateral) / (axial + 1);
+			client_score = axial + (unsigned int)((long)lateral * lateral) / (axial + 1);
 		} else
 #endif
 		{
 			int dist;
 			int dirweight = 20;
 			switch (arg->i) {
-			case 0:
-				dist = s->x - c->x - c->w;
-				client_score =
-					dirweight * MIN(abs(dist), abs(dist + s->mon->ww)) +
-					abs(s->y - c->y);
-				break;
-			case 1:
-				dist = c->x - s->x - s->w;
-				client_score =
-					dirweight * MIN(abs(dist), abs(dist + s->mon->ww)) +
-					abs(c->y - s->y);
-				break;
-			case 2:
-				dist = s->y - c->y - c->h;
-				client_score =
-					dirweight * MIN(abs(dist), abs(dist + s->mon->wh)) +
-					abs(s->x - c->x);
-				break;
-			default:
-			case 3:
-				dist = c->y - s->y - s->h;
-				client_score =
-					dirweight * MIN(abs(dist), abs(dist + s->mon->wh)) +
-					abs(c->x - s->x);
-				break;
+        case 0:
+          dist = s->x - c->x - c->w;
+          client_score =
+            dirweight * abs(dist) +
+            abs(s->y - c->y);
+          break;
+        case 1:
+          dist = c->x - s->x - s->w;
+          client_score =
+            dirweight * abs(dist) +
+            abs(c->y - s->y);
+          break;
+        case 2:
+          dist = s->y - c->y - c->h;
+          client_score =
+            dirweight * abs(dist) +
+            abs(s->x - c->x);
+          break;
+        default:
+        case 3:
+          dist = c->y - s->y - s->h;
+          client_score =
+            dirweight * abs(dist) +
+            abs(c->x - s->x);
+        break;
 			}
 		}
 

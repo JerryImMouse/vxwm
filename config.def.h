@@ -80,12 +80,12 @@ static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 #if LOCK_MOVE_RESIZE_REFRESH_RATE
-static const int refreshrate = 120;  /* refresh rate (per second) for client move/resize, set it to your monitor refresh rate or double of that*/
+static const int refreshrate = 360;  /* refresh rate (per second) for client move/resize, set it to your monitor refresh rate or double of that*/
 #endif //LOCK_MOVE_RESIZE_REFRESH_RATE
 static const Layout layouts[] = {
 	/* symbol     arrange function */
+  { "><>",      NULL },    /* no layout function means floating behavior */
 	{ "[]=",      tile },    /* first entry is default */
-	{ "><>",      NULL },    /* no layout function means floating behavior */
 	{ "[M]",      monocle },
 };
 

@@ -149,6 +149,8 @@ restore_canvas_positions(Monitor *m) {
 
     for (c = m->clients; c; c = c->next) {
         if (ISVISIBLE(c) && c->was_on_canvas) {
+            if (c->isfullscreen)
+              continue;
             c->isfloating = 1;
             
             int target_x = c->saved_cx - m->canvas[tagidx].cx;
