@@ -5,6 +5,10 @@ vxwm represents a significantly enhanced version of dwm that maintains its light
 
 The defining feature of vxwm is its implementation of infinite tags. While traditional tiling managers act like a slide projector, swapping one static view for another, vxwm treats the screen as a viewport over a vast, continuous canvas. Windows aren't hidden or layered; they exist on an infinite surface, and you simply move your perspective across it. You can slide your view to find more space, snap focus to a specific window, or return to the origin using the homecanvas bind. Even though this sounds complex, this isn't resource hungry and isn't hard to use.
 
+vxwm has repositories on:   
+[codeberg](https://codeberg.org/wh1tepearl/vxwm)   
+[github](https://github.com/wh1tepearll/vxwm) (readonly mirror)
+
 # Requirements
 
 In order to build vxwm you need the Xlib, Xft and Xinerama header files.
