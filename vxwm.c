@@ -4,6 +4,9 @@ Infinite tags module is heavily inspired from 5element which is inspired from th
 
 vxwm 2.2 // by wh1tepearl
 
+I just realised that i haven't commenting the entire code, sure i can perfectly read it but for the people that want to fork vxwm/make something with vxwm's code it is a pain in the ass.
+From this moment, i'll try to comment the code and also make it more readable.
+
 */
 
 // Modules configuration is in modules.h

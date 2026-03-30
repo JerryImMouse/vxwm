@@ -188,8 +188,10 @@ static const Key keys[] = {
 static const Button buttons[] = {
 	/* click                event mask      button          function        argument */
 #if INFINITE_TAGS
-  { ClkRootWin,      MODKEY|ShiftMask,         Button1,        manuallymovecanvas,     {0} },
-  { ClkClientWin,    MODKEY|ShiftMask,         Button1,        manuallymovecanvas,     {0} },
+  { ClkRootWin,      MODKEY|ShiftMask,         Button1,        movecanvasmouse,     {.f = 1.5 } }, 
+  { ClkClientWin,    MODKEY|ShiftMask,         Button1,        movecanvasmouse,     {.f = 1.5 } },
+  /* .f = 1 is moving multiplier, for example if set to 0.5, canvas will move 2 times slower, if set to 2, canvas will move 2 times faster. 
+     If you want inverted canvas move then set the value to a negative value. */
 #endif
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },

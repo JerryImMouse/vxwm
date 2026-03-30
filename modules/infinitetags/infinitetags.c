@@ -64,7 +64,7 @@ movecanvas(const Arg *arg)
 }
 
 void
-manuallymovecanvas(const Arg *arg) {
+movecanvasmouse(const Arg *arg) {
     if (selmon->lt[selmon->sellt]->arrange != NULL)
       return;
     if (selmon->sel && selmon->sel->isfullscreen)
@@ -74,6 +74,9 @@ manuallymovecanvas(const Arg *arg) {
     int di;
     unsigned int dui;
     int tagidx = getcurrenttag(selmon);
+    float multiplier = arg ? arg->f : 1.0f;
+    float accum_x = 0.0f, accum_y = 0.0f;
+
 #if LOCK_MOVE_RESIZE_REFRESH_RATE
     Time lasttime = 0;
 #endif
@@ -99,17 +102,30 @@ manuallymovecanvas(const Arg *arg) {
 #endif
             int nx = ev.xmotion.x - start_x;
             int ny = ev.xmotion.y - start_y;
-            
+
+            /* accumulate subpixel remainder to not lose fractional pixels:
+               multiplier=0.5, nx=1: accum=0.5, dx=0 --- skip
+               nx=1:           accum=1.0, dx=1       --- move 
+            */
+            accum_x += nx * multiplier;
+            accum_y += ny * multiplier;
+
+            int dx = (int)accum_x;
+            int dy = (int)accum_y;
+
+            accum_x -= dx;
+            accum_y -= dy;
+
             for (Client *c = selmon->clients; c; c = c->next) {
                 if (c->tags & (1 << tagidx)) {
-                    c->x += nx;
-                    c->y += ny;
+                    c->x += dx;
+                    c->y += dy;
                     XMoveWindow(dpy, c->win, c->x, c->y);
                 }
             }
-            
-            selmon->canvas[tagidx].cx += nx;
-            selmon->canvas[tagidx].cy += ny;
+
+            selmon->canvas[tagidx].cx += dx;
+            selmon->canvas[tagidx].cy += dy;
             drawbar(selmon); 
             start_x = ev.xmotion.x;
             start_y = ev.xmotion.y;
