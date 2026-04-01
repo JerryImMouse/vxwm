@@ -1,5 +1,16 @@
 # vxwm - Versatile X Window Manager for x11 forked from dwm
 
+# The first window manager with age verification!
+
+**Security is far better than freedom!**
+
+Comes with a built-in babysitter 
+*(now with ransomware support!)*
+
+**Depends on:** Ubuntu, systemd, Snap, Flatpak and a stable internet connection for mandatory telemetry.
+
+*No ricing allowed. Parental controls included by default.*
+
 # About
 vxwm represents a significantly enhanced version of dwm that maintains its lightweight nature while offering modular flexibility. Instead of manually applying patches, you can toggle pre-installed features directly in the configuration by switching values between 0 and 1, it is all manageable via modules.def.h.
 
