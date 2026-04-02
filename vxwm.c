@@ -340,9 +340,23 @@ static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
 
+
 /* configuration, allows nested code to access above variables */
 #include "config.h"
+
+/* VXWM_MOD [2026-04-02] HARPOON - added harpoon/pins in vxwm just for fun :) */
+/* 
+ * If you're wondering why its here and not at near `static Window root, wmcheckwin` or below
+ * near `struct NumTags` -> the reason for that is harpoons' pins needs `MAX_PINS` from `config.h`
+ * and `pins` are being used in `modules/vxwm_includes.c` xD
+ * So I had to do it like here, not so clean, but... anyway, the whole structure of this wm is not clean.
+ */
+#if HARPOON
+static Client *pins[MAX_PINS];
+#endif
+
 #include "modules/vxwm_includes.c"
+
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };

@@ -43,3 +43,9 @@
 #if DIRECTIONAL_MOVE
 #include "directionalmove/directionalmove.h"
 #endif
+
+/* VXWM_MOD [2026-04-02] HARPOON - added harpoon/pins in vxwm just for fun :) */
+#if HARPOON
+#include "harpoon/harpoon.h"
+#endif
+
