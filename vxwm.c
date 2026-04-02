@@ -1290,9 +1290,18 @@ manage(Window w, XWindowAttributes *wa)
 	updatewindowtype(c);
 	updatesizehints(c);
 	updatewmhints(c);
-#if ALWAYS_CENTER_NEW_FLOATING_WINDOWS
+#if CENTER_NEW_FLOATING_WINDOWS && !NEW_WINDOWS_APPEAR_UNDER_CURSOR
   c->x = c->mon->wx + (c->mon->ww - WIDTH(c)) / 2;
   c->y = c->mon->wy + (c->mon->wh - HEIGHT(c)) / 2;
+#endif
+#if NEW_FLOATING_WINDOWS_APPEAR_UNDER_CURSOR
+  int mx, my, di;
+  unsigned int dui;
+  Window dw;
+  XQueryPointer(dpy, root, &dw, &dw, &mx, &my, &di, &di, &dui);
+    
+  c->x = mx - c->w / 2;
+  c->y = my - c->h / 2;
 #endif
 	XSelectInput(dpy, w, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
 	grabbuttons(c, 0);

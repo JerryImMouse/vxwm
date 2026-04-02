@@ -104,8 +104,6 @@ Even though this sounds complex, it is actually pretty lightweight, and is very 
 /* Floating */
 /* Recomended to use with ALWAYS_CENTER_NEW_FLOATING_WINDOWS set to 1. */ 
 
-#define ALWAYS_CENTER_NEW_FLOATING_WINDOWS 1 // so, basically, it does what it says.
-
 #define FLOATING_LAYOUT_FLOATS_WINDOWS 1 
 /* By default, in floating layout, windows appear to be floating, but, for dwm,
    they are not. Because of this, when switching to tiled layout after floating
