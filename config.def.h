@@ -68,6 +68,12 @@ static const char *occupiedtags[] = { "1", "2", "3", "4", "5", "6
 #define RESIZE_WITH_KEYBOARD_STEP 50 /* Defines by how many pixels windows will be resized with keyboard */
 #endif
 
+/* VXWM_MOD [2026-04-02] HARPOON - added harpoon/pins in vxwm just for fun :) */
+#if HARPOON
+/* Defines the size of the pins array */
+#define MAX_PINS 9
+#endif
+
 static const Rule rules[] = {
 	/* xprop(1):
 	 *	WM_CLASS(STRING) = instance, class
@@ -100,8 +106,29 @@ static const Layout layouts[] = {
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ Mod1Mask,                     KEY,      tag,            {.ui = 1 << TAG} }, \
+	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+
+
+/* VXWM_MOD [2026-04-02] HARPOON - added harpoon/pins in vxwm just for fun :) */
+/* For those of you wondering what's going on here
+ * 
+ * In DWM(vxwm's origin) we store tags as a bitmask
+ * 01001001
+ * ^
+ * Each 1 is a visible tag and vice-versa.
+ * That's why we use 1 << TAG in TAGKEYS macro.
+ * 
+ * Otherwise, in harpoon/pins module we use a simple array indexed by uint
+ * That's why I pass SLOT directly, without bitshift
+ *
+ */
+#if HARPOON
+#define PINKEYS(KEY, SLOT) \
+    { ALTERNATE_MODKEY|ControlMask|ShiftMask, KEY, harpoon_pin, { .ui = (SLOT) } }, \
+    { ALTERNATE_MODKEY|ShiftMask, KEY, harpoon_goto, { .ui = (SLOT) } },
+#endif
+
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
@@ -197,6 +224,17 @@ static const Key keys[] = {
 	{ ALTERNATE_MODKEY,             XK_Right,  focusdir,       {.i = 1 } }, // right
 	{ ALTERNATE_MODKEY,             XK_Up,     focusdir,       {.i = 2 } }, // up
 	{ ALTERNATE_MODKEY,             XK_Down,   focusdir,       {.i = 3 } }, // down
+#endif
+#if HARPOON
+    PINKEYS(XK_1, 0)
+    PINKEYS(XK_2, 1)
+    PINKEYS(XK_3, 2)
+    PINKEYS(XK_4, 3)
+    PINKEYS(XK_5, 4)
+    PINKEYS(XK_6, 5)
+    PINKEYS(XK_7, 6)
+    PINKEYS(XK_8, 7)
+    PINKEYS(XK_9, 8)
 #endif
 };
 

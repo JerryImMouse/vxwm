@@ -111,7 +111,9 @@ Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, a
 
 #define RESTORE_SIZE_AND_POS_ETF 1 // Restore previous size and position of window when toggling floating 
 
-
+/* VXWM_MOD [2026-04-02] HARPOON - added harpoon/pins in vxwm just for fun :) */
+/* Support for pinning windows in some memory and then navigate via predefined keybinds */
+#define HARPOON 1
 
 /* Dependency list */
 /* INFINITE_TAGS requires WINDOWMAP, please set WINDOWMAP to 1, if not, it will be automatically enabled.
