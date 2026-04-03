@@ -25,6 +25,10 @@ vxwm: ${OBJ}
 clean:
 	rm -f vxwm ${OBJ} dwm-${VERSION}.tar.gz
 
+unconfigure:
+	rm -f config.h modules.h
+
+
 dist: clean
 	mkdir -p vxwm-${VERSION}
 	cp -R LICENSE Makefile README config.def.h config.mk\

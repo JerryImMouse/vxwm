@@ -106,7 +106,7 @@ static const Layout layouts[] = {
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
+	{ Mod1Mask,             KEY,      tag,            {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
 
@@ -125,8 +125,8 @@ static const Layout layouts[] = {
  */
 #if HARPOON
 #define PINKEYS(KEY, SLOT) \
-    { ALTERNATE_MODKEY|ControlMask|ShiftMask, KEY, harpoon_pin, { .ui = (SLOT) } }, \
-    { ALTERNATE_MODKEY|ShiftMask, KEY, harpoon_goto, { .ui = (SLOT) } },
+    { MODKEY|ControlMask|ShiftMask, KEY, harpoon_pin, { .ui = (SLOT) } }, \
+    { MODKEY|ShiftMask, KEY, harpoon_goto, { .ui = (SLOT) } },
 #endif
 
 
