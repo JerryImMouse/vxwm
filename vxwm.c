@@ -1,20 +1,16 @@
 /* See LICENSE file for copyright and license details.
-This wm is forked from dwm 6.7 (but keep up with all dwm's updates), thanks suckless for their incredible work on dwm!
+This wm is forked from dwm 6.7 (but keeps up with all dwm's updates), thanks suckless for their incredible work on dwm!
+Infinite tags module is heavily inspired from 5element which is inspired from the hevel wayland compositor.
 
-vxwm 2.0 // by wh1tepearl
+vxwm 2.2 // by wh1tepearl
 
-Known issues:
+I just realised that i haven't commenting the entire code, sure i can perfectly read it but for the people that want to fork vxwm/make something with vxwm's code it is a pain in the ass.
+From this moment, i'll try to comment the code and also make it more readable.
 
-None
-
-Solved issues:
-1. When using BETTER_RESIZE and resizing window on top of bar, bar will start to erase as window resizes
-2. When usinng BAR_PADDING status text doesn't show.
-3. Windows teleports when hitting its minimum size when using BETTER_RESIZE
-4. When using BETTER_RESIZE window is not becaming floating when resizing
 */
 
 // Modules configuration is in modules.h
+// Config is in config.h
 
 #include <errno.h>
 #include <locale.h>
@@ -84,6 +80,13 @@ Solved issues:
 		                          } 
 #endif
 
+/* This is purely for a bit less sucky config */
+#if !XRDB
+#define MAYBE_CONST const
+#else
+#define MAYBE_CONST
+#endif
+
 /* enums */
 enum { CurNormal, CurResize, CurMove,
 #if BETTER_RESIZE && BR_CHANGE_CURSOR
@@ -98,7 +101,7 @@ enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
 #if !EWMH_TAGS
        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
 #else //EWMH_TAGS 
-       NetWMWindowTypeDialog, NetClientList, NetDesktopNames, NetDesktopViewport, NetNumberOfDesktops, NetCurrentDesktop, NetLast }; /* EWMH atoms */
+       NetWMWindowTypeDialog, NetClientList, NetDesktopNames, NetDesktopViewport, NetNumberOfDesktops, NetCurrentDesktop, NetDesktopNum, NetLast }; /* EWMH atoms */
 #endif
 enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
@@ -193,6 +196,9 @@ struct Monitor {
 	const Layout *lt[2];
 #if INFINITE_TAGS
   CanvasOffset *canvas;
+#endif
+#if EXTERNAL_BARS
+  int strut_top, strut_bottom, strut_left, strut_right;
 #endif
 };
 
@@ -469,10 +475,17 @@ applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact)
 void
 arrange(Monitor *m)
 {
+#if WINDOWMAP
+	XGrabServer(dpy);
+#endif
 	if (m)
 		showhide(m->stack);
 	else for (m = mons; m; m = m->next)
 		showhide(m->stack);
+#if WINDOWMAP
+	XUngrabServer(dpy);
+	XSync(dpy, False);
+#endif
 	if (m) {
 		arrangemon(m);
 		restack(m);
@@ -544,7 +557,7 @@ buttonpress(XEvent *e)
 			arg.ui = 1 << i;
 		} else if (ev->x < x + TEXTW(selmon->ltsymbol))
 			click = ClkLtSymbol;
-		else if (ev->x > selmon->ww - (int)TEXTW(stext))
+		else if (ev->x > selmon->ww - (int)TEXTW(stext) + lrpad - 2)
 			click = ClkStatusText;
 		else
 			click = ClkWinTitle;
@@ -612,7 +625,11 @@ cleanupmon(Monitor *mon)
 	}
 	XUnmapWindow(dpy, mon->barwin);
 	XDestroyWindow(dpy, mon->barwin);
-	free(mon);
+#if INFINITE_TAGS
+  free(mon->canvas);
+#endif
+  free(mon);
+
 }
 
 void
@@ -773,6 +790,9 @@ destroynotify(XEvent *e)
 
 	if ((c = wintoclient(ev->window)))
 		unmanage(c, 1);
+#if EXTERNAL_BARS
+  externalbars_unregister(ev->window);
+#endif
 }
 
 void
@@ -834,7 +854,6 @@ drawbar(Monitor *m)
 #if !BAR_PADDING
 		drw_text(drw, m->ww - tw, 0, tw, bh, 0, stext, 0);
 #else
-//  drw_text(drw, m->ww - sw - 2 * sp, 0, sw, bh, 0, stext, 0); this was causing the solved issue 2
     drw_text(drw, m->ww - tw - 2 * sp, 0, tw, bh, 0, stext, 0);
 #endif
 	}
@@ -862,21 +881,31 @@ drawbar(Monitor *m)
 #endif
 		x += w;
 	}
-#if INFINITE_TAGS && IT_SHOW_COORDINATES_IN_BAR
-  int tagidx = getcurrenttag(m);
-  char coords[64];
-  snprintf(coords, sizeof(coords), "[x%d y%d]", 
-          m->canvas[tagidx].cx / 10,
-          m->canvas[tagidx].cy / 10); // Delete 10 if you want to get the most accurate values
-  w = TEXTW(coords);
-  drw_setscheme(drw, scheme[SchemeNorm]);
-  drw_text(drw, x, 0, w, bh, lrpad / 2, coords, 0);
-  x += w;
-#endif
 
 	w = TEXTW(m->ltsymbol);
 	drw_setscheme(drw, scheme[SchemeNorm]);
 	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
+
+#if INFINITE_TAGS && IT_SHOW_COORDINATES_IN_BAR
+
+  #if COORDINATES_DIVISOR <= 0
+    #undef COORDINATES_DIVISOR
+    #define COORDINATES_DIVISOR 1
+  #endif
+
+  if (selmon->lt[selmon->sellt]->arrange == NULL) {
+    int tagidx = getcurrenttag(m);
+    char coords[64];
+    snprintf(coords, sizeof(coords), "[x%d y%d]", 
+      m->canvas[tagidx].cx / COORDINATES_DIVISOR,
+      m->canvas[tagidx].cy / COORDINATES_DIVISOR);
+    w = TEXTW(coords);
+    drw_setscheme(drw, scheme[SchemeNorm]);
+    drw_text(drw, x, 0, w, bh, lrpad / 2, coords, 0);
+    x += w;
+  }
+
+#endif
 
 	if ((w = m->ww - tw - x) > bh) {
 		if (m->sel) {
@@ -1275,9 +1304,18 @@ manage(Window w, XWindowAttributes *wa)
 	updatewindowtype(c);
 	updatesizehints(c);
 	updatewmhints(c);
-#if ALWAYS_CENTER_NEW_FLOATING_WINDOWS
+#if CENTER_NEW_FLOATING_WINDOWS && !NEW_WINDOWS_APPEAR_UNDER_CURSOR
   c->x = c->mon->wx + (c->mon->ww - WIDTH(c)) / 2;
   c->y = c->mon->wy + (c->mon->wh - HEIGHT(c)) / 2;
+#endif
+#if NEW_FLOATING_WINDOWS_APPEAR_UNDER_CURSOR
+  int mx, my, di;
+  unsigned int dui;
+  Window dw;
+  XQueryPointer(dpy, root, &dw, &dw, &mx, &my, &di, &di, &dui);
+    
+  c->x = mx - c->w / 2;
+  c->y = my - c->h / 2;
 #endif
 	XSelectInput(dpy, w, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
 	grabbuttons(c, 0);
@@ -1287,6 +1325,9 @@ manage(Window w, XWindowAttributes *wa)
 		XRaiseWindow(dpy, c->win);
 	attach(c);
 	attachstack(c);
+	#if EWMH_TAGS
+	updatewmdesktop(c);
+	#endif
 	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
 		(unsigned char *) &(c->win), 1);
 	XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
@@ -1317,9 +1358,17 @@ maprequest(XEvent *e)
 {
 	static XWindowAttributes wa;
 	XMapRequestEvent *ev = &e->xmaprequest;
-
+ 
 	if (!XGetWindowAttributes(dpy, ev->window, &wa) || wa.override_redirect)
 		return;
+#if EXTERNAL_BARS
+	if (externalbars_hasstrut(ev->window)) {
+		externalbars_register(ev->window);
+		XMapWindow(dpy, ev->window);
+		XSelectInput(dpy, ev->window, PropertyChangeMask|StructureNotifyMask);
+		return;
+	}
+#endif
 	if (!wintoclient(ev->window))
 		manage(ev->window, &wa);
 }
@@ -1556,6 +1605,17 @@ propertynotify(XEvent *e)
 	Window trans;
 	XPropertyEvent *ev = &e->xproperty;
 
+#if EXTERNAL_BARS
+  if (ev->atom == XInternAtom(dpy, "_NET_WM_STRUT_PARTIAL", False) ||
+      ev->atom == XInternAtom(dpy, "_NET_WM_STRUT", False)) {
+    if (ev->state == PropertyNewValue)
+      externalbars_register(ev->window);
+    else
+      externalbars_unregister(ev->window);
+    return;
+  }
+#endif
+
 	if ((ev->window == root) && (ev->atom == XA_WM_NAME))
 		updatestatus();
 	else if (ev->state == PropertyDelete)
@@ -1669,7 +1729,7 @@ resizemouse(const Arg *arg)
 			if (c->mon->wx + nw >= selmon->wx && c->mon->wx + nw <= selmon->wx + selmon->ww
 			&& c->mon->wy + nh >= selmon->wy && c->mon->wy + nh <= selmon->wy + selmon->wh)
 			{
-#if !RESIZINIG_WINDOWS_IN_ALL_LAYOUTS_FLOATS_THEM
+#if !RESIZING_WINDOWS_IN_ALL_LAYOUTS_FLOATS_THEM
 				if (!c->isfloating && selmon->lt[selmon->sellt]->arrange
 				&& (abs(nw - c->w) > snap || abs(nh - c->h) > snap))
 					togglefloating(NULL);
@@ -1730,6 +1790,21 @@ restack(Monitor *m)
 				wc.sibling = c->win;
 			}
 	}
+#if INFINITE_TAGS
+  else {
+    if (m->sel && m->sel->isfullscreen)
+      return;
+    wc.stack_mode = Below;
+    wc.sibling = m->barwin;
+    for (c = m->stack; c; c = c->snext) {
+      if (ISVISIBLE(c) && !c->isfixed && !c->isfullscreen) {
+        XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+        wc.sibling = c->win;
+      }
+    }
+    XRaiseWindow(dpy, m->barwin);
+  }
+#endif
 	XSync(dpy, False);
 	while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
 }
@@ -1748,28 +1823,41 @@ run(void)
 void
 scan(void)
 {
-	unsigned int i, num;
-	Window d1, d2, *wins = NULL;
-	XWindowAttributes wa;
-
-	if (XQueryTree(dpy, root, &d1, &d2, &wins, &num)) {
-		for (i = 0; i < num; i++) {
-			if (!XGetWindowAttributes(dpy, wins[i], &wa)
-			|| wa.override_redirect || XGetTransientForHint(dpy, wins[i], &d1))
-				continue;
-			if (wa.map_state == IsViewable || getstate(wins[i]) == IconicState)
-				manage(wins[i], &wa);
-		}
-		for (i = 0; i < num; i++) { /* now the transients */
-			if (!XGetWindowAttributes(dpy, wins[i], &wa))
-				continue;
-			if (XGetTransientForHint(dpy, wins[i], &d1)
-			&& (wa.map_state == IsViewable || getstate(wins[i]) == IconicState))
-				manage(wins[i], &wa);
-		}
-		if (wins)
-			XFree(wins);
-	}
+    unsigned int i, num;
+    Window d1, d2, *wins = NULL;
+    XWindowAttributes wa;
+ 
+#if EXTERNAL_BARS
+    externalbars_begin_scan();
+#endif
+    if (XQueryTree(dpy, root, &d1, &d2, &wins, &num)) {
+        for (i = 0; i < num; i++) {
+            if (!XGetWindowAttributes(dpy, wins[i], &wa)
+            || wa.override_redirect || XGetTransientForHint(dpy, wins[i], &d1))
+                continue;
+            if (wa.map_state == IsViewable || getstate(wins[i]) == IconicState) {
+#if EXTERNAL_BARS
+                if (externalbars_hasstrut(wins[i])) {
+                    externalbars_register(wins[i]);
+                    continue;
+                }
+#endif
+                manage(wins[i], &wa);
+            }
+        }
+        for (i = 0; i < num; i++) { /* now the transients */
+            if (!XGetWindowAttributes(dpy, wins[i], &wa))
+                continue;
+            if (XGetTransientForHint(dpy, wins[i], &d1)
+            && (wa.map_state == IsViewable || getstate(wins[i]) == IconicState))
+                manage(wins[i], &wa);
+        }
+        if (wins)
+            XFree(wins);
+    }
+#if EXTERNAL_BARS
+    externalbars_end_scan();
+#endif
 }
 
 void
@@ -1784,6 +1872,11 @@ sendmon(Client *c, Monitor *m)
 	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
 	attach(c);
 	attachstack(c);
+	#if EWMH_TAGS
+	updatewmdesktop(c);
+	#endif
+	if (c->isfullscreen)
+		resizeclient(c, m->mx, m->my, m->mw, m->mh);
 	focus(NULL);
 	arrange(NULL);
 }
@@ -1968,6 +2061,7 @@ setup(void)
 	netatom[NetNumberOfDesktops] = XInternAtom(dpy, "_NET_NUMBER_OF_DESKTOPS", False);
 	netatom[NetCurrentDesktop] = XInternAtom(dpy, "_NET_CURRENT_DESKTOP", False);
 	netatom[NetDesktopNames] = XInternAtom(dpy, "_NET_DESKTOP_NAMES", False);
+	netatom[NetDesktopNum] = XInternAtom(dpy, "_NET_WM_DESKTOP", False);
 #endif
 	/* init cursors */
 	cursor[CurNormal] = drw_cur_create(drw, XC_left_ptr);
@@ -2041,14 +2135,6 @@ showhide(Client *c)
 	if (!c)
 		return;
 	
-#if WINDOWMAP
-	static int grabbed = 0;
-	if (!grabbed) {
-		XGrabServer(dpy);
-		grabbed = 1;
-	}
-#endif
-	
 	if (ISVISIBLE(c)) {
 		/* show clients top down */
 #if !WINDOWMAP
@@ -2067,14 +2153,6 @@ showhide(Client *c)
 		showhide(c->snext);
 		SHOWHIDEPROFILE
 	}
-	
-#if WINDOWMAP
-	if (!c->snext && grabbed) {
-		XUngrabServer(dpy);
-		XSync(dpy, False);
-		grabbed = 0;
-	}
-#endif
 }
 
 void
@@ -2123,6 +2201,9 @@ tag(const Arg *arg)
 #endif
 
         selmon->sel->tags = arg->ui & TAGMASK;
+		#if EWMH_TAGS
+		updatewmdesktop(selmon->sel);
+		#endif
         focus(NULL);
         arrange(selmon);
     }
@@ -2184,14 +2265,28 @@ tile(Monitor *m)
 void
 togglebar(const Arg *arg)
 {
-	selmon->showbar = !selmon->showbar;
-	updatebarpos(selmon);
+    selmon->showbar = !selmon->showbar;
+    updatebarpos(selmon);
+
+    int bar_y;
+    if (selmon->showbar) {
+        bar_y = selmon->by;
+    } else {
+        if (topbar) {
+            bar_y = -bh;
+        } else {
+            bar_y = selmon->mh + bh;
+        }
+    }
+
 #if !BAR_PADDING
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
+    XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, bar_y, selmon->ww, bh);
 #else
-  XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, selmon->by + vp, selmon->ww - 2 * sp, bh);
+    int final_y = (selmon->showbar) ? (bar_y + vp) : bar_y;
+    XMoveResizeWindow(dpy, selmon->barwin, selmon->wx + sp, final_y, selmon->ww - 2 * sp, bh);
 #endif
-	arrange(selmon);
+
+    arrange(selmon);
 }
 
 void
@@ -2218,6 +2313,9 @@ toggletag(const Arg *arg)
 	newtags = selmon->sel->tags ^ (arg->ui & TAGMASK);
 	if (newtags) {
 		selmon->sel->tags = newtags;
+		#if EWMH_TAGS
+		updatewmdesktop(selmon->sel);
+		#endif
 		focus(NULL);
 		arrange(selmon);
 	}
@@ -2296,6 +2394,9 @@ unmapnotify(XEvent *e)
 		else
 			unmanage(c, 0);
 	}
+#if EXTERNAL_BARS
+  externalbars_unregister(ev->window);
+#endif
 }
 
 void
@@ -2345,6 +2446,14 @@ updatebarpos(Monitor *m)
 #else
     m->by = -bh - vp;
 #endif
+#if EXTERNAL_BARS
+    m->wx += m->strut_left;
+    m->ww -= m->strut_left + m->strut_right;
+    m->wy += m->strut_top;
+    m->wh -= m->strut_top + m->strut_bottom;
+    if (m->ww < 1) m->ww = 1;
+    if (m->wh < 1) m->wh = 1;
+ #endif
 }
 
 void
@@ -2718,9 +2827,17 @@ int
 main(int argc, char *argv[])
 {
 	if (argc == 2 && !strcmp("-v", argv[1]))
-		die("vxwm - "VERSION);
+		die("vxwm "VERSION);
+  if (argc == 2 && !strcmp("-srcdir", argv[1]))
+    die(SRCDIR);
+  if (argc == 2 && !strcmp("-ignoreautostart", argv[1]))
+    printf("Ignoring autostart");
 	else if (argc != 1)
-		die("usage: vxwm [-v]");
+		die("usage: vxwm [-v] [-srcdir]"
+#if AUTOSTART
+         " [-ignoreautostart]"
+#endif
+       );
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		fputs("warning: no locale support\n", stderr);
 	if (!(dpy = XOpenDisplay(NULL)))
@@ -2736,6 +2853,10 @@ main(int argc, char *argv[])
 		die("pledge");
 #endif /* __OpenBSD__ */
 	scan();
+#if AUTOSTART
+  if (!(argc == 2 && !strcmp("-ignoreautostart", argv[1])))
+    runautostart();
+#endif
 	run();
 	cleanup();
 	XCloseDisplay(dpy);

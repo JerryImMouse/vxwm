@@ -32,3 +32,11 @@ updatecurrentdesktop(void){
 	long data[] = { i };
 	XChangeProperty(dpy, root, netatom[NetCurrentDesktop], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, 1);
 }
+
+void
+updatewmdesktop(Client *c)
+{
+	unsigned long desktop = c->tags ? ffs(c->tags) - 1 : 0;
+	XChangeProperty(dpy, c->win, netatom[NetDesktopNum], XA_CARDINAL, 32,
+	PropModeReplace, (unsigned char *)&desktop, 1);
+}

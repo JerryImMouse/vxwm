@@ -31,6 +31,8 @@ movecanvas(const Arg *arg)
 {
 	if (selmon->lt[selmon->sellt]->arrange != NULL)
 		return;
+  if (selmon->sel && selmon->sel->isfullscreen)
+    return;
 
 	int tagidx = getcurrenttag(selmon);
 	int dx = 0, dy = 0;
@@ -62,19 +64,22 @@ movecanvas(const Arg *arg)
 }
 
 void
-manuallymovecanvas(const Arg *arg) {
+movecanvasmouse(const Arg *arg) {
     if (selmon->lt[selmon->sellt]->arrange != NULL)
-        return;
+      return;
+    if (selmon->sel && selmon->sel->isfullscreen)
+      return;
     int start_x, start_y;
     Window dummy;
     int di;
     unsigned int dui;
     int tagidx = getcurrenttag(selmon);
+    float multiplier = arg ? arg->f : 1.0f;
+    float accum_x = 0.0f, accum_y = 0.0f;
+
 #if LOCK_MOVE_RESIZE_REFRESH_RATE
     Time lasttime = 0;
 #endif
-    if (selmon->sel && selmon->sel->isfullscreen)
-        return;
 
     if (!XQueryPointer(dpy, root, &dummy, &dummy, &start_x, &start_y, &di, &di, &dui))
         return;
@@ -97,17 +102,30 @@ manuallymovecanvas(const Arg *arg) {
 #endif
             int nx = ev.xmotion.x - start_x;
             int ny = ev.xmotion.y - start_y;
-            
+
+            /* accumulate subpixel remainder to not lose fractional pixels:
+               multiplier=0.5, nx=1: accum=0.5, dx=0 --- skip
+               nx=1:           accum=1.0, dx=1       --- move 
+            */
+            accum_x += nx * multiplier;
+            accum_y += ny * multiplier;
+
+            int dx = (int)accum_x;
+            int dy = (int)accum_y;
+
+            accum_x -= dx;
+            accum_y -= dy;
+
             for (Client *c = selmon->clients; c; c = c->next) {
                 if (c->tags & (1 << tagidx)) {
-                    c->x += nx;
-                    c->y += ny;
+                    c->x += dx;
+                    c->y += dy;
                     XMoveWindow(dpy, c->win, c->x, c->y);
                 }
             }
-            
-            selmon->canvas[tagidx].cx += nx;
-            selmon->canvas[tagidx].cy += ny;
+
+            selmon->canvas[tagidx].cx += dx;
+            selmon->canvas[tagidx].cy += dy;
             drawbar(selmon); 
             start_x = ev.xmotion.x;
             start_y = ev.xmotion.y;
@@ -147,6 +165,8 @@ restore_canvas_positions(Monitor *m) {
 
     for (c = m->clients; c; c = c->next) {
         if (ISVISIBLE(c) && c->was_on_canvas) {
+            if (c->isfullscreen)
+              continue;
             c->isfloating = 1;
             
             int target_x = c->saved_cx - m->canvas[tagidx].cx;
@@ -168,39 +188,33 @@ restore_canvas_positions(Monitor *m) {
 void
 centerwindow(const Arg *arg)
 {
-    Client *c = (arg && arg->v) ? (Client *)arg->v : selmon->sel;
+  Client *c = (arg && arg->v) ? (Client *)arg->v : selmon->sel;
 
-    if (!c || !c->mon || c->mon->lt[c->mon->sellt]->arrange != NULL)
-        return;
+  if (!c || !c->mon || c->mon->lt[c->mon->sellt]->arrange != NULL)
+    return;
 
-    Monitor *m = c->mon;
-    int tagidx = getcurrenttag(m);
+  Monitor *m = c->mon;
+  int tagidx = getcurrenttag(m);
 
-    int screen_center_x = m->wx + (m->ww / 2);
-    int screen_center_y = m->wy + (m->wh / 2);
+  int dx = (m->wx + m->ww - WIDTH(c)) / 2 - c->x;
+  int dy = m->wy + (m->wh / 2) - (c->y + HEIGHT(c) / 2);
 
-    int win_center_x = c->x + (c->w + 2 * c->bw) / 2;
-    int win_center_y = c->y + (c->h + 2 * c->bw) / 2;
+  if (dx == 0 && dy == 0)
+    return;
 
-    int dx = screen_center_x - win_center_x;
-    int dy = screen_center_y - win_center_y;
-
-    if (dx == 0 && dy == 0)
-        return;
-
-    Client *tmp;
-    for (tmp = m->clients; tmp; tmp = tmp->next) {
-        if (ISVISIBLE(tmp)) {
-            tmp->x += dx;
-            tmp->y += dy;
-            XMoveWindow(dpy, tmp->win, tmp->x, tmp->y);
-        }
+  Client *tmp;
+  for (tmp = m->clients; tmp; tmp = tmp->next) {
+    if (ISVISIBLE(tmp)) {
+      tmp->x += dx;
+      tmp->y += dy;
+      XMoveWindow(dpy, tmp->win, tmp->x, tmp->y);
     }
+  }
 
-    m->canvas[tagidx].cx += dx;
-    m->canvas[tagidx].cy += dy;
+  m->canvas[tagidx].cx += dx;
+  m->canvas[tagidx].cy += dy;
 
-    drawbar(m);
+  drawbar(m);
 }
 
 // VXWM_MOD [2026-02-28] MAXIMIZE - added maximizewindow() function, I just wanted this thing badly

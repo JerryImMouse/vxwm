@@ -16,9 +16,8 @@ window_map(Display *dpy, Client *c, int deiconify)
 		window_set_state(dpy, win, NormalState);
 
 	XMoveResizeWindow(dpy, c->win, c->x, c->y, c->w, c->h);
-	XSetInputFocus(dpy, win, RevertToPointerRoot, CurrentTime);
 	XMapWindow(dpy, win);
-  focus(NULL);
+	focus(NULL);
 }
 
 void

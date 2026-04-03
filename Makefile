@@ -23,7 +23,7 @@ vxwm: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
 
 clean:
-	rm -f vxwm ${OBJ} dwm-${VERSION}.tar.gz
+	rm -f vxwm ${OBJ} vxwm-${VERSION}.tar.gz
 
 unconfigure:
 	rm -f config.h modules.h
@@ -31,21 +31,17 @@ unconfigure:
 
 dist: clean
 	mkdir -p vxwm-${VERSION}
-	cp -R LICENSE Makefile README config.def.h config.mk\
-		vxwm.1 drw.h util.h ${SRC} transient.c vxwm-${VERSION}
+	cp -R LICENSE Makefile README.md config.def.h config.mk\
+		vxwm.1 drw.h util.h ${SRC} vxwm-${VERSION}
 	tar -cf vxwm-${VERSION}.tar vxwm-${VERSION}
 	gzip vxwm-${VERSION}.tar
 	rm -rf vxwm-${VERSION}
 
 install: all
-	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -f vxwm ${DESTDIR}${PREFIX}/bin
-	cp -f rvx ${DESTDIR}${PREFIX}/bin
-	chmod 755 ${DESTDIR}${PREFIX}/bin/vxwm
-	chmod 755 ${DESTDIR}${PREFIX}/bin/rvx
-	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	sed "s/VERSION/${VERSION}/g" < vxwm.1 > ${DESTDIR}${MANPREFIX}/man1/vxwm.1
-	chmod 644 ${DESTDIR}${MANPREFIX}/man1/vxwm.1
+	install -D -m 755 vxwm ${DESTDIR}${PREFIX}/bin/vxwm
+	install -D -m 755 rvx  ${DESTDIR}${PREFIX}/bin/rvx
+	install -D -m 644 vxwm.1 ${DESTDIR}${MANPREFIX}/man1/vxwm.1
+	sed -i 's/VERSION/${VERSION}/g' ${DESTDIR}${MANPREFIX}/man1/vxwm.1
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/vxwm\
