@@ -2,4 +2,4 @@
 config.h
 modules.h
 vxwm
-backups/
+*.tar.gz

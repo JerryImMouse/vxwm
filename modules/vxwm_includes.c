@@ -52,3 +52,11 @@
 #if HARPOON
 #include "harpoon/harpoon.c"
 #endif
+
+#if AUTOSTART
+#include "autostart/autostart.c"
+#endif
+
+#if EXTERNAL_BARS
+#include "externalbars/externalbars.c"
+#endif

@@ -10,27 +10,33 @@ vxwm is dwm on steroids, it can be as lightweight as you want.
 It has some patches for dwm pre installed that can be enabled/disabled by switching 0 to 1 or vice versa. (like in dwm-flexipatch)
 It also has some unique features like 8 sided resize, enhanced toggle floating, warp cursor and more! (They also can be toggled)
 Check modules.def.h for full list of features.
+=======
+# About
+vxwm represents a significantly enhanced version of dwm that maintains its lightweight nature while offering modular flexibility. Instead of manually applying patches, you can toggle pre-installed features directly in the configuration by switching values between 0 and 1, it is all manageable via modules.def.h.
 
-But the main feature of vxwm, is infinite tags.
- 
-Most tiling window managers (like the default dwm) treat your screen like a slide-projector. You click a button, and the current "slide" is swapped for another. If an window is off-screen, it doesn't exist.
+The defining feature of vxwm is its implementation of infinite tags. While traditional tiling managers act like a slide projector, swapping one static view for another, vxwm treats the screen as a viewport over a vast, continuous canvas. Windows aren't hidden or layered; they exist on an infinite surface, and you simply move your perspective across it. You can slide your view to find more space, snap focus to a specific window, or return to the origin using the homecanvas bind. Even though this sounds complex, this isn't resource hungry and isn't hard to use.
 
-With infinite tags enabled, vxwm treats your screen like a magnifying glass over a giant wooden desk.
+vxwm has repositories on:   
+[codeberg](https://codeberg.org/wh1tepearl/vxwm)   
+[github](https://github.com/wh1tepearll/vxwm) (readonly mirror)
 
-The Canvas is Infinite
-Your windows aren't "on" tags. They are placed on a massive, invisible surface. Your monitor is just a small window through which you look at that surface.
+# Requirements
 
-Move the View, Not Just the Windows
-Instead of managing "layers" or "hidden states," you manage position.
+In order to build vxwm you need the Xlib, Xft and Xinerama header files.
 
-Want more space? Slide the view over.
-Can't find a window? Swicth your focus to it, and the world slides until that window is right under your nose.
-Lost? Hit the "homecanvas" keybind to snap your view back to the start.
-Even though this sounds complex, it is actually pretty lightweight ~250 l.o.c, and is very easy to use.
+## Deps Installation
 
-## Requirements
+Arch Linux:
 
-In order to build vxwm you need the Xlib header files.
+    sudo pacman -Sy libx11 libxft libxinerama
+
+Void Linux:
+
+    sudo xbps-install -S libX11 libX11-devel libXft libXft-devel libXinerama libXinerama-devel
+
+Gentoo Linux:
+    
+    sudo emerge -av x11-libs/libX11 x11-libs/libXft x11-libs/libXinerama
 
 # Getting Started:
 
@@ -44,15 +50,16 @@ Clone this repository and cd into it.
 Edit config.mk to match your local setup (vxwm is installed into
 the /usr/local namespace by default).
 
-Enable Xinerama if you need it by uncommenting Xinerama libs in config.mk.
+Afterwards enter the following commands to build and install vxwm:
+    
+    make
+    sudo make clean install
 
-Afterwards enter the following command to build and install vxwm (if
-necessary as root):
-
-    make clean install
-
+(yes, run make first and only then sudo make clean install)
 
 ## Running vxwm
+
+You will need startx utility installed.
 
 Add the following line to your .xinitrc to start vxwm using startx:
 
@@ -64,14 +71,14 @@ or for hot configuration reload, add something like this to your .xinitrc:
     vxwm &
     exec sleep infinity
 
-And then for restarting vxwm just kill vxwm's process and start it again or use rvx utility.
+And then for restarting vxwm use the rvx utility.
 
 In order to connect vxwm to a specific display, make sure that
 the DISPLAY environment variable is set correctly, e.g.:
 
-    DISPLAY=foo.bar:1 exec vxwm
+    DISPLAY=:1 exec vxwm
 
-(This will start vxwm on display :1 of the host foo.bar.)
+(This will start vxwm on display :1)
 
 In order to display status info in the bar, you can do something
 like this in your .xinitrc:
@@ -83,18 +90,48 @@ like this in your .xinitrc:
     exec vxwm
 
 
-## Configuration
+# Configuration
 
 The configuration of vxwm is done by editing config.h and modules.h to
 match your preferences and (re)compiling the source code.
 
-## Acknowledgements
+## Adding custom keybinds
 
-vxwm was made in solo by a linux enthusiast wh1tepearl, many thanks to suckless.org and the [dwm] developers for making dwm in first place.
-Thanks 5element developer and hevel wayland compositor developers for inspiration of infinite tags.
+Add this to config.h and replace yoursillyprogram with the actual cmd that will be executed in hte keybind (recommended adding it right before keys array):
+
+    static const char *yoursillyprogramcmd[]  = { "yoursillyprogram", NULL };
+
+If your cmd uses multiple arguments, you should write them like this:
+
+    static const char *yoursillyprogramcmd[]  = { "yoursillyprogram", "arg1", "arg2", NULL };
+
+etc.
+
+And then add this to keys massive:
+
+    { MODKEY|ShiftMask,             XK_u, spawn,          {.v = yoursillyprogramcmd } }, 
+
+## Modules
+
+Enable/disable (0/1) modules you need/don't need, thats it.
+
+> [!NOTE]
+> After any change in config/modules recompile vxwm and restart using rvx.
+
+# Acknowledgements
+
+vxwm was made by wh1tepearl, many thanks to suckless.org and the [dwm] developers for making dwm in first place.
+Thanks 5element developer and hevel wayland compositor developers for the inspiration of infinite tags.
 
 Also try:
 
 hevel wayland compositor: https://git.sr.ht/~dlm/hevel
 
 5element: https://hg.sr.ht/~umix11/5element
+
+
+
+> [!NOTE]
+> If you encounter any bugs - **please make an issue!**<br>
+> If you want something added - **please make an issue!**<br>
+> If you want to change something - **please make an issue!**

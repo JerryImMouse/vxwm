@@ -10,34 +10,20 @@ static const int topbar             = 0;        /* 0 means bottom bar */
 static const char *fonts[]          = { "monospace:size=10" };
 static const char dmenufont[]       = "monospace:size=10";
 
-#if !XRDB //when xrdb is turned off
-
-static const char col_gray1[]       = "#222222";
-static const char col_gray2[]       = "#444444";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
-static const char *colors[][3]      = {
-	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
-};
-
-#else //when xrdb is turned on
-
-static char normbgcolor[]           = "#222222";
-static char normbordercolor[]       = "#444444";
-static char normfgcolor[]           = "#bbbbbb";
-static char selfgcolor[]            = "#eeeeee";
-static char selbordercolor[]        = "#005577";
-static char selbgcolor[]            = "#005577";
-static char *colors[][3] = {
+static MAYBE_CONST char normbgcolor[]           = "#222222";
+static MAYBE_CONST char normbordercolor[]       = "#444444";
+static MAYBE_CONST char normfgcolor[]           = "#bbbbbb";
+static MAYBE_CONST char selfgcolor[]            = "#eeeeee";
+static MAYBE_CONST char selbordercolor[]        = "#005577";
+static MAYBE_CONST char selbgcolor[]            = "#005577";
+static MAYBE_CONST char *colors[][3] = {
        /*               fg           bg           border   */
        [SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor },
        [SchemeSel]  = { selfgcolor,  selbgcolor,  selbordercolor  },
 };
 
-#endif
+#define CENTER_NEW_FLOATING_WINDOWS 1 // so, basically, it does what it says. (make 0 to turn off)
+#define NEW_FLOATING_WINDOWS_APPEAR_UNDER_CURSOR 0 // so, basically, it does what it says. (make 0 to turn off) 
 
 #if GAPS
 static const unsigned int gappx = 5;
@@ -56,11 +42,15 @@ static const int sidepad = 5;       /* horizontal padding of bar */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
 #if OCCUPIED_TAGS_DECORATION
-static const char *occupiedtags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *occupiedtags[] = { "1+", "2+", "3+", "4+", "5+", "6+", "7+", "8+", "9+" };
 #endif
 
 #if INFINITE_TAGS
 #define MOVE_CANVAS_STEP 120 /* Defines how many pixel will be jumped when using movecanvas function */
+#endif
+
+#if INFINITE_TAGS && IT_SHOW_COORDINATES_IN_BAR
+#define COORDINATES_DIVISOR 10 /* Defines by what number coordinates on the bar will be divided, can be used for making numbers smaller which makes navigation easier */
 #endif
 
 #if MOVE_RESIZE_WITH_KEYBOARD
@@ -72,6 +62,14 @@ static const char *occupiedtags[] = { "1", "2", "3", "4", "5", "6
 #if HARPOON
 /* Defines the size of the pins array */
 #define MAX_PINS 9
+#endif
+
+#if AUTOSTART
+/* vxwm will execute this on startup (can be skipped with -ignoreautostart vxwm flag). */
+
+static const char *const autostart[] = {
+	NULL /* must end with NULL */
+};
 #endif
 
 static const Rule rules[] = {
@@ -94,8 +92,8 @@ static const int refreshrate = 144;  /* refresh rate (per second) for client mov
 #endif //LOCK_MOVE_RESIZE_REFRESH_RATE
 static const Layout layouts[] = {
 	/* symbol     arrange function */
+  { "><>",      NULL },    /* no layout function means floating behavior */
 	{ "[]=",      tile },    /* first entry is default */
-	{ "><>",      NULL },    /* no layout function means floating behavior */
 	{ "[M]",      monocle },
 };
 
@@ -135,12 +133,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-
-#if !XRDB //when xrdb is turned off
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
-#else //when xrdb is on
 static const char *dmenucmd[] = { "dmenu_run", "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbordercolor, "-sf", selfgcolor, NULL };
-#endif
 
 static const char *roficmd[] = { "rofi", "-show", "drun", "-icon-theme", "Papirus", "-show-icons", "-font", "JetBrains Mono Nerd Font", NULL };
 static const char *termcmd[]  = { "kitty", NULL };
@@ -243,8 +236,10 @@ static const Key keys[] = {
 static const Button buttons[] = {
 	/* click                event mask      button          function        argument */
 #if INFINITE_TAGS
-  { ClkRootWin,      MODKEY|ShiftMask,         Button1,        manuallymovecanvas,     {0} },
-  { ClkClientWin,    MODKEY|ShiftMask,         Button1,        manuallymovecanvas,     {0} },
+  { ClkRootWin,      MODKEY|ShiftMask,         Button1,        movecanvasmouse,     {.f = 1.5 } }, 
+  { ClkClientWin,    MODKEY|ShiftMask,         Button1,        movecanvasmouse,     {.f = 1.5 } },
+  /* .f = 1 is moving multiplier, for example if set to 0.5, canvas will move 2 times slower, if set to 2, canvas will move 2 times faster. 
+     If you want inverted canvas move then set the value to a negative value. */
 #endif
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
